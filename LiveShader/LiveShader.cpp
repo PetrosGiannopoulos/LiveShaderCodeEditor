@@ -10,6 +10,8 @@ using namespace std;
 void resizeWrapper(GLFWwindow* window, int width, int height);
 void mouseWrapper(GLFWwindow* window, double xpos, double ypos);
 void scrollWrapper(GLFWwindow* window, double xpos, double ypos);
+void keyWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);
+void characterWrapper(GLFWwindow* window, unsigned int keycode);
 
 Graphics *graphics;
 
@@ -21,6 +23,10 @@ int main()
 	glfwSetFramebufferSizeCallback(graphics->window, resizeWrapper);
 	glfwSetCursorPosCallback(graphics->window, mouseWrapper);
 	glfwSetScrollCallback(graphics->window, scrollWrapper);
+	glfwSetKeyCallback(graphics->window, keyWrapper);
+	glfwSetCharCallback(graphics->window, characterWrapper);
+
+	glfwSetInputMode(graphics->window,GLFW_STICKY_KEYS, 1);
 
 	graphics->mainLoop();
 
@@ -40,5 +46,13 @@ void mouseWrapper(GLFWwindow* window, double xpos, double ypos) {
 }
 void scrollWrapper(GLFWwindow* window, double xoffset, double yoffset) {
 	graphics->scroll_callback(window, xoffset, yoffset);
+}
+
+void keyWrapper(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	graphics->key_callback(window, key, scancode, action, mods);
+}
+
+void characterWrapper(GLFWwindow* window, unsigned int keycode) {
+	graphics->character_callback(window, keycode);
 }
 

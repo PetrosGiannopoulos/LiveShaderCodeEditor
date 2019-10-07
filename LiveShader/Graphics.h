@@ -32,6 +32,7 @@ public:
 	int cubemapWidth, cubemapHeight;
 
 	bool firstMouse = true;
+	bool firstClick = true;
 
 	float lastX = 1000 / 2.0f;
 	float lastY = 800 / 2.0f;
@@ -43,6 +44,12 @@ public:
 	Shader screenShader;
 
 	Text codeEditor;
+
+	int oldLeftMouseButtonState;
+
+	int oldLeftArrowKeyState;
+
+	glm::vec2 caretPos;
 
 public:
 
@@ -94,7 +101,7 @@ public:
 
 		codeEditor = Text(Shader("textShader.vs", "textShader.fs"));
 
-		
+		caretPos = codeEditor.caretPos;
 	}
 
 
@@ -129,6 +136,11 @@ public:
 
 		screenShader.setFloat("width", mode->width);
 		screenShader.setFloat("height", mode->height);
+
+		//set caretPos
+		codeEditor.caretPos = caretPos;
+
+		screenShader.setVec2("caretPos", codeEditor.caretPos);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, codeScreenTexture);
@@ -189,6 +201,39 @@ public:
 			camera.ProcessKeyboard(LEFT, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			camera.ProcessKeyboard(RIGHT, deltaTime);
+
+
+		int newLeftMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+		if (newLeftMouseButtonState == GLFW_RELEASE && oldLeftMouseButtonState == GLFW_PRESS) {
+			//cout << "mouse pressed" << endl;
+			double x, y;
+
+			glfwGetCursorPos(window, &x, &y);
+			
+			if (codeEditor.searchingLine == false) {
+				
+				caretPos = glm::vec2(x,y+25);
+				//caretPos = glm::vec2(x*2-5,y);
+				glm::vec2 cPos = caretPos;
+				cPos.y = mode->height - cPos.y;
+				//caretPos = cPos;
+				caretPos = codeEditor.convertScreenToTextPoint(cPos, mode->width, mode->height);
+				//cout << caretPos.x << endl;
+				//caretPos.y = mode->height - caretPos.y;
+				codeEditor.searchingLine = false;
+				
+			}
+		}
+
+		oldLeftMouseButtonState = newLeftMouseButtonState;
+		
+		/*int newLeftArrowKeyState = glfwGetKey(window, GLFW_KEY_LEFT);
+		if (newLeftArrowKeyState == GLFW_PRESS && oldLeftArrowKeyState != GLFW_PRESS) {
+			cout << "left" << endl;
+		}
+
+		oldLeftArrowKeyState = newLeftArrowKeyState;
+		*/
 	}
 
 
@@ -213,6 +258,8 @@ public:
 		lastY = ypos;
 
 		camera.ProcessMouseMovement(xoffset, yoffset);
+
+		
 	}
 
 	// glfw: whenever the mouse scroll wheel scrolls, this callback is called
@@ -220,6 +267,71 @@ public:
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		camera.ProcessMouseScroll(yoffset);
+	}
+
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		//action: GLFW_PRESS / GLFW_RELEASE / GLFW_REPEAT
+		//string keyName = string(glfwGetKeyName(key, scancode));
+		
+		
+		switch (action) {
+			case GLFW_PRESS:
+				//cout << key << endl;
+				
+				keyAction(key);
+				break;
+			case GLFW_RELEASE:
+				break;
+			case GLFW_REPEAT:
+				keyAction(key);
+				break;
+			default:
+				break;
+		};
+	}
+
+	void keyAction(int key) {
+
+		switch (key) {
+			case 263:
+
+				//left arrow button
+				caretPos = codeEditor.moveCaretLeft();
+				break;
+			case 262:
+				//right arrow button
+				caretPos = codeEditor.moveCaretRight();
+				break;
+			case 264:
+				//down arrow button
+				caretPos = codeEditor.moveCaretDown(mode->height);
+				break;
+			case 265:
+				//up arrow button
+				caretPos = codeEditor.moveCaretUp(mode->height);
+				break;
+			case 259:
+				//backspace button
+				caretPos = codeEditor.deleteBackSpaceCharacter(mode->height);
+				break;
+			case 261:
+				//delete button
+				caretPos = codeEditor.deleteCharacter();
+				break;
+			case 257:
+				//enter button
+				caretPos = codeEditor.enterNewLine(mode->height);
+				break;
+			default:
+				break;
+		};
+	}
+
+	void character_callback(GLFWwindow* window, unsigned int keycode) {
+		//cout << keycode << endl;
+
+		char c = keycode;
+		caretPos = codeEditor.insertCharacter(c);
 	}
 
 	void terminate() {

@@ -12,7 +12,7 @@ public:
 
 	vector<string> codeText;
 
-	Shader textShader;
+	Shader textShader, *screenShader;
 
 	struct Character {
 		GLuint     TextureID;  // ID handle of the glyph texture
@@ -30,6 +30,12 @@ public:
 
 	unsigned int rows, cols;
 	int fontSize;
+
+	glm::vec2 caretPos;
+	glm::vec2 caretPosI;
+
+	int startX, startY;
+	bool searchingLine = false;
 
 public:
 
@@ -57,6 +63,10 @@ public:
 		codeText.push_back("if(i==b){");
 		codeText.push_back("b=i;");
 		codeText.push_back("}else if");
+
+		caretPos = glm::vec2(100,100);
+
+		startX = 20;
 		
 	}
 
@@ -136,8 +146,9 @@ public:
 
 		for (int i = 0; i < codeText.size();i++) {
 			vector<int> keywordType = preprocessText(codeText[i]);
-			RenderText(textShader, codeText[i], keywordType , 20, height - 100-i*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0));
+			RenderText(textShader, codeText[i], keywordType , startX, height - 100-i*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0));
 		}
+
 	}
 
 	vector<int> preprocessText(string text) {
@@ -228,6 +239,8 @@ public:
 			GLfloat xpos = x + ch.Bearing.x * scale;
 			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
+			shader.setVec2("pos", glm::vec2(xpos,ypos));
+
 			GLfloat w = ch.Size.x * scale;
 			GLfloat h = ch.Size.y * scale;
 			// Update VBO for each character
@@ -254,6 +267,350 @@ public:
 		}
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
 	}
 
+	glm::vec2 convertScreenToTextPoint(glm::vec2 pos, int width, int height) {
+
+		float minDistX = FLT_MAX;
+		float minDistY = FLT_MAX;
+		float minDist = FLT_MAX;
+		float minX = FLT_MAX;
+		float minY = FLT_MAX;
+		float scale = 1;
+
+		float minIX = -1;
+		float minIY = -1;
+
+		float x, y;
+
+		x = startX;
+		
+		searchingLine = true;
+
+		/* Logic: First we find the discrete row by looking at
+		the smallest difference between current y caret position coord 
+		and the minimum. Then for the selected row we find the smallest 
+		difference between current x caret position coord and the minimum
+		*/
+
+
+		for (int i = 0; i < codeText.size();i++) {
+
+			string text = codeText[i];
+
+			y = height-100 - i*(rows + fontSize*0.5);
+
+			// Iterate through all characters
+			std::string::const_iterator c;
+			int counter = 0;
+			for (c = text.begin(); c != text.end(); c++){
+
+				
+				Character ch = Characters[*c];
+
+				GLfloat xpos = x + ch.Bearing.x * scale;
+				GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+				GLfloat w = ch.Size.x * scale;
+				GLfloat h = ch.Size.y * scale;
+
+				float diffY = abs(y + (rows + fontSize*0.5)*0.3 - pos.y);
+
+				if (diffY < minDistY) {
+					minDistY = diffY;
+					minY = y +(rows + fontSize*0.5)*0.3;
+					minIY = i;
+				}
+
+				x += (ch.Advance >> 6) * scale;
+				counter++;
+			}
+
+		}
+
+		x = startX;
+		string text = codeText[minIY];
+		std::string::const_iterator c;
+		int counter = 0;
+		for (c = text.begin(); c != text.end(); c++) {
+			Character ch = Characters[*c];
+
+			GLfloat xpos = x + ch.Bearing.x * scale;
+			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+			GLfloat w = ch.Size.x * scale;
+			GLfloat h = ch.Size.y * scale;
+
+			float diffX = abs(xpos - pos.x);
+
+			if (diffX < minDistX) {
+				minDistX = diffX;
+				minX = xpos;
+				minIX = counter;
+			}
+
+			x += (ch.Advance >> 6) * scale;
+			counter++;
+
+		}
+
+		caretPosI = glm::vec2(minIX,minIY);
+
+		return glm::vec2(minX,minY);
+
+
+	}
+
+	glm::vec2 moveCaretLeft() {
+
+		if (caretPosI.x <= 0)return caretPos;
+
+		string lineText = codeText[caretPosI.y];
+
+		char previousC = lineText[caretPosI.x - 1];
+
+		Character pc = Characters[previousC];
+
+		caretPosI.x--;
+
+		float scale = 1;
+
+		caretPos.x = caretPos.x-(pc.Advance>>6)*scale;
+
+		return caretPos;
+
+	}
+
+	glm::vec2 moveCaretRight() {
+
+		string lineText = codeText[caretPosI.y];
+
+		if (caretPosI.x >= lineText.length())return caretPos;
+		char c = lineText[caretPosI.x];
+
+		Character nc = Characters[c];
+		caretPosI.x++;
+
+		float scale = 1;
+
+		caretPos.x = caretPos.x + (nc.Advance >> 6)*scale;
+
+		return caretPos;
+	}
+
+	glm::vec2 moveCaretUp(int height) {
+
+		if (caretPosI.y <= 0)return caretPos;
+
+		string plineText = codeText[caretPosI.y - 1];
+		
+		caretPosI.y--;
+
+		//find closest x
+		float minDistX = FLT_MAX;
+		float minX = FLT_MAX;
+		float minIX = -1;
+
+		float scale = 1;
+	
+		int counter = 0;
+		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		float x = startX;
+		float y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		std::string::const_iterator c;
+		for (c = plineText.begin(); c != plineText.end(); c++) {
+			Character ch = Characters[*c];
+
+			GLfloat xpos = x + ch.Bearing.x * scale;
+			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+			GLfloat w = ch.Size.x * scale;
+			GLfloat h = ch.Size.y * scale;
+
+			float diffX = abs(xpos - caretPos.x);
+
+			if (diffX < minDistX) {
+				minDistX = diffX;
+				minX = xpos;
+				minIX = counter;
+			}
+			counter++;
+
+			x += (ch.Advance >> 6) * scale;
+		}
+
+		caretPosI.x = minIX;
+		caretPos.x = minX;
+		caretPos.y += (rows + fontSize*0.5)*0.3;
+
+		return caretPos;
+	}
+
+	glm::vec2 moveCaretDown(int height) {
+		if (caretPosI.y >= codeText.size()-1)return caretPos;
+
+		string nlineText = codeText[caretPosI.y + 1];
+
+		caretPosI.y++;
+
+		//find closest x
+		float minDistX = FLT_MAX;
+		float minX = FLT_MAX;
+		float minIX = -1;
+
+		float scale = 1;
+
+		int counter = 0;
+		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		float x = startX;
+		float y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		std::string::const_iterator c;
+		for (c = nlineText.begin(); c != nlineText.end(); c++) {
+			Character ch = Characters[*c];
+
+			GLfloat xpos = x + ch.Bearing.x * scale;
+			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+			GLfloat w = ch.Size.x * scale;
+			GLfloat h = ch.Size.y * scale;
+
+			float diffX = abs(xpos - caretPos.x);
+
+			if (diffX < minDistX) {
+				minDistX = diffX;
+				minX = xpos;
+				minIX = counter;
+			}
+			counter++;
+
+			x += (ch.Advance >> 6) * scale;
+		}
+
+		caretPosI.x = minIX;
+		caretPos.x = minX;
+		caretPos.y += (rows + fontSize*0.5)*0.3;
+
+		return caretPos;
+	}
+
+	glm::vec2 insertCharacter(char c) {
+
+		codeText[caretPosI.y].insert(caretPosI.x,1,c);
+		Character ch = Characters[c];
+		float scale = 1;
+		caretPos.x += (ch.Advance >> 6)*scale;
+		caretPosI.x++;
+
+		return caretPos;
+	}
+
+	glm::vec2 deleteCharacter() {
+
+		codeText[caretPosI.y].erase(caretPosI.x,1);
+
+		return caretPos;
+
+	}
+
+	glm::vec2 deleteBackSpaceCharacter(int height) {
+
+		float scale = 1;
+		//TODO: if on start of the string paste line to the end of the previous one
+		// and move all line below it to that height
+		if (caretPosI.x <= 0) {
+
+			if (caretPosI.y > 0) {
+
+				string cpyStr = codeText[caretPosI.y];
+
+				
+				//codeText[caretPosI.y].erase(codeText[caretPosI.y].begin(), codeText[caretPosI.y].end());
+
+				//move next lines 1 row up
+				int N = codeText.size();
+				for (int i = caretPosI.y; i < N - 1; i++) codeText[i] = codeText[i + 1];
+				codeText[N - 1].erase(codeText[N - 1].begin(), codeText[N - 1].end());
+				codeText.resize(codeText.size() - 1);
+
+				caretPosI.y--;
+
+				caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+				
+				string currentLine = codeText[caretPosI.y];
+
+				float x, y;
+				x = startX;
+				y = caretPos.y;
+
+				int counter = 0;
+				std::string::const_iterator c;
+				for (c = currentLine.begin(); c != currentLine.end(); c++) {
+					Character ch_ = Characters[*c];
+
+					GLfloat xpos = x + ch_.Bearing.x * scale;
+					GLfloat ypos = y - (ch_.Size.y - ch_.Bearing.y) * scale;
+
+					GLfloat w = ch_.Size.x * scale;
+					GLfloat h = ch_.Size.y * scale;
+
+					x += (ch_.Advance >> 6)*scale;
+					counter++;
+				}
+
+
+				caretPos.x = x;
+				caretPos.y += (rows + fontSize*0.5)*0.3;
+				caretPosI.x = counter;
+
+				codeText[caretPosI.y].insert(codeText[caretPosI.y].length(), cpyStr);
+
+			}
+			//cout << codeText[caretPosI.y-1] << endl;
+
+			return caretPos;
+		}
+
+		char pc = codeText[caretPosI.y][caretPosI.x - 1];
+		codeText[caretPosI.y].erase(caretPosI.x-1,1);
+
+		Character ch = Characters[pc];
+		
+		caretPos.x -= (ch.Advance >> 6)*scale;
+		caretPosI.x--;
+
+
+		return caretPos;
+	}
+
+	glm::vec2 enterNewLine(int height) {
+		
+		//TODO: clear string from caretPos plus
+		// move all string below that line 1 line down
+		// paste cleared part of string to the empty line
+
+
+		string cpyStr = codeText[caretPosI.y].substr(caretPosI.x, codeText[caretPosI.y].length()-caretPosI.x);
+
+		codeText[caretPosI.y].erase(codeText[caretPosI.y].begin()+caretPosI.x, codeText[caretPosI.y].end());
+
+		codeText.insert(codeText.begin()+caretPosI.y+1,cpyStr);
+
+		
+		/*
+		int N = codeText.size();
+		for (int i = N-1; i > caretPosI.y;i--) {
+			codeText[i + 1] = codeText[i];
+		}
+		*/
+		caretPosI.y++;
+		caretPosI.x = 0;
+
+		caretPos.x = startX;
+		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		caretPos.y += (rows + fontSize*0.5)*0.3;
+
+		return caretPos;
+
+	}
 };
