@@ -34,7 +34,7 @@ public:
 	glm::vec2 caretPos;
 	glm::vec2 caretPosI;
 
-	int startX, startY;
+	int startX, startY, scrollX;
 	bool searchingLine = false;
 
 public:
@@ -51,9 +51,9 @@ public:
 		//load font
 	
 		if (FT_Init_FreeType(&ft))cout << "ERROR::FREETYPE: Could not init FreeType Library" << endl;
-		if (FT_New_Face(ft, "Fonts/arial.ttf", 0, &face))cout << "ERROR::FREETYPE: Failed to load font" << endl;
+		if (FT_New_Face(ft, "Fonts/NotoMono-Regular.ttf", 0, &face))cout << "ERROR::FREETYPE: Failed to load font" << endl;
 
-		fontSize = 24;
+		fontSize = 20;
 		FT_Set_Pixel_Sizes(face, 0, fontSize);
 
 		loadCharacters();
@@ -66,8 +66,49 @@ public:
 
 		caretPos = glm::vec2(100,100);
 
-		startX = 20;
+		startX = 100;
+		startY = 0;
+		scrollX = 0;
 		
+	}
+
+	void readLines(vector<string> lines) {
+		codeText.clear();
+		codeText = lines;
+	}
+
+	glm::vec2 initCaretPos(int height) {
+
+		caretPosI.y = codeText.size() - 1;
+		caretPosI.x = codeText[caretPosI.y].length();
+
+		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		
+
+		float x, y;
+
+		x = startX;
+		y = caretPos.y;
+		float scale = 1;
+		string line = codeText[caretPosI.y];
+		std::string::const_iterator c;
+		for (c = line.begin(); c != line.end(); c++) {
+			Character ch_ = Characters[*c];
+
+			GLfloat xpos = x + ch_.Bearing.x * scale;
+			GLfloat ypos = y - (ch_.Size.y - ch_.Bearing.y) * scale;
+
+			GLfloat w = ch_.Size.x * scale;
+			GLfloat h = ch_.Size.y * scale;
+
+			x += (ch_.Advance >> 6)*scale;
+		}
+		caretPos.x = x;
+		caretPos.y += (rows + fontSize*0.5)*0.3;
+
+		caretPos.y += startY*(rows+fontSize*0.5);
+
+		return caretPos;
 	}
 
 	void loadCharacters() {
@@ -142,18 +183,62 @@ public:
 		textShader.use();
 		textShader.setMat4("projection", projection);
 
-		//RenderText(textShader,"LEMAOOOOOOOOOOOOOOO", 100,height-200, 1.0f, glm::vec3(1,0,0));
+		//RenderText(textShader,"exampleText", 100,height-200, 1.0f, glm::vec3(1,0,0));
 
-		for (int i = 0; i < codeText.size();i++) {
+		int N = codeText.size();
+
+		
+
+		for (int i = 0; i < N;i++) {
+
+			if ((height - 100 - (i + startY)*(rows + fontSize*0.5))<0 || (height - 100 - (i + startY)*(rows + fontSize*0.5))>height)continue;
+
 			vector<int> keywordType = preprocessText(codeText[i]);
-			RenderText(textShader, codeText[i], keywordType , startX, height - 100-i*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0));
+			RenderText(width,textShader, codeText[i], keywordType , startX-scrollX, height - 100-(i+startY)*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0));
+		
+
+			//render line numbers
+			int nD = numDigits(i+1);
+
+			string spaces;
+			for (int k = nD; k < 4; k++) {
+				spaces += ' ';
+			}
+
+			RenderText(width,textShader, spaces+to_string(i+1), keywordType, 5, height - 100 - (i+startY)*(rows + fontSize*0.5), 1.0, glm::vec3(1, 1, 1), false);
 		}
 
+
+	}
+
+	int numDigits(int number)
+	{
+		int digits = 0;
+		while (number) {
+			number /= 10;
+			digits++;
+		}
+		return digits;
+	}
+
+	bool isAlphaBeta(char c) {
+
+		string ab = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+		
+		bool found = false;
+		for (int i = 0; i < ab.length();i++)if (ab[i] == c)return true;
+		return found;
 	}
 
 	vector<int> preprocessText(string text) {
 
-		string testSet[] = { "if", "else", "class"};
+
+		//TODO: add keywords
+		string testSet[] = { "uniform","float","vec2","vec3","vec4","gl_FragCoord","gl_FragColor","return",
+			"if","else","mix","step","smoothstep","dot","void","length","normalize","sampler2D", "samplerCube",
+			"in","out","clamp","for","break","continue","int","sin","cos","tan","sinh","cosh","tanh",
+			"asin","acos","atan","mod","min","max","sign","cross","fract","ceil","floor","abs","inout","bool",
+			"mat2", "mat3", "mat4", "struct", "#define"};
 
 		vector<int> keywordType;
 
@@ -179,10 +264,12 @@ public:
 				
 
 				if (app.compare(test)==0) {
-					for (int k = 0; k < counter;k++) keywordType[i - k] = 1;
-					app.clear();
-					counter = 0;
-					break;
+					if (isAlphaBeta(text[i+1])==false && isAlphaBeta(text[i-counter]==false)) {
+						for (int k = 0; k < counter; k++) keywordType[i - k] = 1;
+						app.clear();
+						counter = 0;
+						break;
+					}
 				}
 				else {
 
@@ -193,19 +280,24 @@ public:
 					}
 
 					if (temp.compare(test) == 0) {
-						for (int k = 0; k < counter;k++)keywordType[i - k] = 1;
-						for (int k = 0; k < diff; k++)keywordType[i + k+1] = 1;
-						break;
+						if (isAlphaBeta(text[i + diff + counter]) == false && isAlphaBeta(text[i-counter]) == false) {
+							for (int k = 0; k < counter; k++)keywordType[i - k] = 1;
+							for (int k = 0; k < diff; k++)keywordType[i + k + 1] = 1;
+							break;
+						}
+						
 					}
 					
 					if (j < numElements - 1) continue;
 					
 
 					if (app.length() == test.length()) {
-						i = i - (counter-1);
-						
+
+						i = i - (counter - 1);
+
 						counter = 0;
 						app.clear();
+						
 						
 					}	
 
@@ -218,7 +310,7 @@ public:
 
 	}
 
-	void RenderText(Shader &shader, string text, vector<int> keywordType, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
+	void RenderText(int width, Shader &shader, string text, vector<int> keywordType, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, bool keywords=true)
 	{
 		// Activate corresponding render state	
 		shader.use();
@@ -231,14 +323,23 @@ public:
 		int counter = 0;
 		for (c = text.begin(); c != text.end(); c++)
 		{
-			if (keywordType[counter] == 0)shader.setVec3("textColor", color);
-			else if (keywordType[counter] == 1)shader.setVec3("textColor", glm::vec3(51/255.,131/255.,247/255.));
+			if (keywords) {
+				if (keywordType[counter] == 0)shader.setVec3("textColor", color);
+				else if (keywordType[counter] == 1)shader.setVec3("textColor", glm::vec3(51 / 255., 131 / 255., 247 / 255.));
+			}
+			else shader.setVec3("textColor", color);
+			
 			counter++;
 			Character ch = Characters[*c];
 
 			GLfloat xpos = x + ch.Bearing.x * scale;
 			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
+			if (x > width*0.5)return;
+			if (keywords == true && x < startX) {
+				x += (ch.Advance >> 6) * scale;
+				continue;
+			}
 			shader.setVec2("pos", glm::vec2(xpos,ypos));
 
 			GLfloat w = ch.Size.x * scale;
@@ -270,6 +371,27 @@ public:
 
 	}
 
+	glm::vec2 updateCaretByScroll(bool upwards) {
+
+		if (upwards > 0) {
+
+			if (startY == 0)return caretPos;
+
+			caretPos.y -= (rows + fontSize*0.5)*2;
+			startY+=2;
+		}
+		else {
+
+			caretPos.y += (rows + fontSize*0.5)*2;
+			startY-=2;
+		}
+
+		
+
+		return caretPos;
+	
+	}
+
 	glm::vec2 convertScreenToTextPoint(glm::vec2 pos, int width, int height) {
 
 		float minDistX = FLT_MAX;
@@ -299,7 +421,7 @@ public:
 
 			string text = codeText[i];
 
-			y = height-100 - i*(rows + fontSize*0.5);
+			y = height-100 - (i+startY)*(rows + fontSize*0.5);
 
 			// Iterate through all characters
 			std::string::const_iterator c;
@@ -346,7 +468,7 @@ public:
 
 			if (diffX < minDistX) {
 				minDistX = diffX;
-				minX = xpos;
+				minX = x;// xpos;
 				minIX = counter;
 			}
 
@@ -362,7 +484,7 @@ public:
 
 	}
 
-	glm::vec2 moveCaretLeft() {
+	glm::vec2 moveCaretLeft(int width) {
 
 		if (caretPosI.x <= 0)return caretPos;
 
@@ -376,13 +498,18 @@ public:
 
 		float scale = 1;
 
-		caretPos.x = caretPos.x-(pc.Advance>>6)*scale;
+		if(caretPos.x <= startX){
+			scrollX -= (pc.Advance >> 6)*scale;
+		}
+		else caretPos.x = caretPos.x-(pc.Advance>>6)*scale;
 
 		return caretPos;
 
 	}
 
-	glm::vec2 moveCaretRight() {
+	glm::vec2 moveCaretRight(int width) {
+
+		
 
 		string lineText = codeText[caretPosI.y];
 
@@ -394,7 +521,10 @@ public:
 
 		float scale = 1;
 
-		caretPos.x = caretPos.x + (nc.Advance >> 6)*scale;
+		if (caretPos.x > width*0.5) {
+			scrollX += (nc.Advance >> 6)*scale;
+		}
+		else caretPos.x = caretPos.x + (nc.Advance >> 6)*scale;
 
 		return caretPos;
 	}
@@ -415,9 +545,9 @@ public:
 		float scale = 1;
 	
 		int counter = 0;
-		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		caretPos.y = height - 100 - (caretPosI.y+startY)*(rows + fontSize*0.5);
 		float x = startX;
-		float y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		float y = caretPos.y;
 		std::string::const_iterator c;
 		for (c = plineText.begin(); c != plineText.end(); c++) {
 			Character ch = Characters[*c];
@@ -432,7 +562,7 @@ public:
 
 			if (diffX < minDistX) {
 				minDistX = diffX;
-				minX = xpos;
+				minX = x;// xpos;
 				minIX = counter;
 			}
 			counter++;
@@ -462,9 +592,9 @@ public:
 		float scale = 1;
 
 		int counter = 0;
-		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		caretPos.y = height - 100 - (caretPosI.y+startY)*(rows + fontSize*0.5);
 		float x = startX;
-		float y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+		float y = caretPos.y;
 		std::string::const_iterator c;
 		for (c = nlineText.begin(); c != nlineText.end(); c++) {
 			Character ch = Characters[*c];
@@ -479,7 +609,7 @@ public:
 
 			if (diffX < minDistX) {
 				minDistX = diffX;
-				minX = xpos;
+				minX = x;// xpos;
 				minIX = counter;
 			}
 			counter++;
@@ -535,7 +665,7 @@ public:
 
 				caretPosI.y--;
 
-				caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+				caretPos.y = height - 100 - (caretPosI.y+startY)*(rows + fontSize*0.5);
 				
 				string currentLine = codeText[caretPosI.y];
 
@@ -589,26 +719,58 @@ public:
 		// move all string below that line 1 line down
 		// paste cleared part of string to the empty line
 
-
+		
 		string cpyStr = codeText[caretPosI.y].substr(caretPosI.x, codeText[caretPosI.y].length()-caretPosI.x);
 
 		codeText[caretPosI.y].erase(codeText[caretPosI.y].begin()+caretPosI.x, codeText[caretPosI.y].end());
 
+		//if (codeText[caretPosI.y].length() == 0)codeText[caretPosI.y].push_back(' ');
+
 		codeText.insert(codeText.begin()+caretPosI.y+1,cpyStr);
 
-		
-		/*
-		int N = codeText.size();
-		for (int i = N-1; i > caretPosI.y;i--) {
-			codeText[i + 1] = codeText[i];
-		}
-		*/
 		caretPosI.y++;
 		caretPosI.x = 0;
 
 		caretPos.x = startX;
-		caretPos.y = height - 100 - caretPosI.y*(rows + fontSize*0.5);
+
+		if (caretPosI.y < codeText.size() - 1) {
+			float scale = 1;
+			std::string::const_iterator c;
+			string nline = codeText[caretPosI.y + 1];
+			for (c = nline.begin(); c != nline.end(); c++) {
+				Character ch_ = Characters[*c];
+				if (*c == ' ') {
+					caretPos.x += (ch_.Advance >> 6)*scale;
+					codeText[caretPosI.y].insert(codeText[caretPosI.y].begin(), 1, ' ');
+					caretPosI.x++;
+				}
+				else break;
+			}
+		}
+
+		if (codeText[caretPosI.y-1].length() == 0)codeText[caretPosI.y-1].push_back(' ');
+
+		caretPos.y = height - 100 - (caretPosI.y+startY)*(rows + fontSize*0.5);
 		caretPos.y += (rows + fontSize*0.5)*0.3;
+
+		scrollX = 0;
+
+		return caretPos;
+
+	}
+
+	glm::vec2 addTabSpace() {
+
+		codeText[caretPosI.y].insert(caretPosI.x,"    ");
+		
+		caretPosI.x += 4;
+		
+		float scale = 1;
+
+		char c = ' ';
+		Character ch = Characters[c];
+
+		caretPos.x += 4 * (ch.Advance >> 6)*scale;
 
 		return caretPos;
 

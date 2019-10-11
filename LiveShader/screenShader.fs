@@ -39,9 +39,20 @@ void main()
 	float diffY = abs(gl_FragCoord.y-posCaret.y);
 
 	//if(gl_FragCoord.y>posCaret.y && gl_FragCoord.y<(posCaret.y+caretHeight) && (gl_FragCoord.x>posCaret.x && gl_FragCoord.x<(posCaret.x+caretWidth))){
-	if(diffX<caretWidth && diffY<caretHeight){
-		FragColor = mix(caretColor, FragColor, 0.5);
+	
+	vec4 bgColor = vec4(0.75,0.75,1,1)*smoothstep(length(aTexCoords*2-1)*12.5,0.01,0.02);
+	
+	if(screenCoords.x<(width*0.5)){
+		//FragColor = mix(FragColor, bgColor,0.5);
+		FragColor = pow(FragColor, vec4(1/2.2));
 	}
 
-	if(length(gl_FragCoord.xy-posCaret)<4)FragColor = mix(FragColor,vec4(0,1,0,1),0.5);
+	if(diffX<caretWidth && diffY<caretHeight){
+		FragColor = caretColor;
+	}
+
+	//if(length(gl_FragCoord.xy-posCaret)<4)FragColor = vec4(0,1,0,1);
+
+
+	if(gl_FragCoord.x<70)FragColor = vec4(0,0,0,1)+(aTexCoords.y*0.15);
 } 

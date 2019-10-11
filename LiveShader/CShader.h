@@ -7,6 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector>
+
+using namespace std;
 
 class CShader
 {
@@ -18,6 +21,8 @@ public:
 
 	int work_grp_size[3], work_grp_inv, work_grp_count[3];
 
+	std::string computeCode;
+
 	CShader() {
 
 	}
@@ -27,7 +32,7 @@ public:
 	CShader(const char* computePath)
 	{
 		// 1. retrieve the vertex/fragment source code from filePath
-		std::string computeCode;
+		
 		
 		std::ifstream cShaderFile;
 		
@@ -47,6 +52,7 @@ public:
 			
 			// convert stream into string
 			computeCode = cShaderStream.str();
+			
 			
 		}
 		catch (std::ifstream::failure e)
@@ -97,6 +103,38 @@ public:
 		//global group 2147483647, 65535, 65535
 		glUseProgram(0);
 	}
+
+	vector<string> getLines() {
+
+		vector<string> lines;
+
+		string app;
+		for (int i = 0; i < computeCode.length();i++) {
+
+			if (computeCode[i] == '\n') {
+				if (app.length() == 0)app += ' ';
+				lines.push_back(app);
+				app.clear();
+				continue;
+			}
+
+			
+
+			if (computeCode[i] == '\t') {
+				for (int i = 0; i < 4;i++) {
+					app += ' ';
+				}
+			}
+			else {
+				app += computeCode[i];
+			}
+		}
+
+		//cout << lines.size() << endl;
+
+		return lines;
+	}
+
 	// activate the shader
 	// ------------------------------------------------------------------------
 	void use()

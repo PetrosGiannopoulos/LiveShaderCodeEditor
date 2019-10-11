@@ -51,6 +51,9 @@ public:
 
 	glm::vec2 caretPos;
 
+	unsigned int computeShaderTexture;
+	CShader computeShader;
+
 public:
 
 
@@ -102,6 +105,20 @@ public:
 		codeEditor = Text(Shader("textShader.vs", "textShader.fs"));
 
 		caretPos = codeEditor.caretPos;
+
+		caretPos = codeEditor.initCaretPos(mode->height);
+
+
+		computeShader = CShader("Presets/ComputeShaderPreset1.glslcs");
+		computeShaderTexture = computeShader.createFrameBufferTexture();
+
+		computeShader.use();
+		computeShader.setInt("skybox", 0);
+		computeShader.setInt("diffuseTexture", 1);
+		computeShader.setInt("ssao", 2);
+		computeShader.setInt("shadowMap", 3);
+
+		codeEditor.readLines(computeShader.getLines());
 	}
 
 
@@ -266,6 +283,9 @@ public:
 	// ----------------------------------------------------------------------
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
+
+		if (yoffset > 0)caretPos = codeEditor.updateCaretByScroll(true);
+		else if (yoffset < 0)caretPos = codeEditor.updateCaretByScroll(false);
 		camera.ProcessMouseScroll(yoffset);
 	}
 
@@ -296,11 +316,11 @@ public:
 			case 263:
 
 				//left arrow button
-				caretPos = codeEditor.moveCaretLeft();
+				caretPos = codeEditor.moveCaretLeft(mode->width);
 				break;
 			case 262:
 				//right arrow button
-				caretPos = codeEditor.moveCaretRight();
+				caretPos = codeEditor.moveCaretRight(mode->width);
 				break;
 			case 264:
 				//down arrow button
@@ -321,6 +341,10 @@ public:
 			case 257:
 				//enter button
 				caretPos = codeEditor.enterNewLine(mode->height);
+				break;
+			case 258:
+				//tab button
+				caretPos = codeEditor.addTabSpace();
 				break;
 			default:
 				break;
