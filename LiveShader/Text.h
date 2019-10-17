@@ -5,6 +5,8 @@
 
 #include <map>
 #include <freetype\ftglyph.h>
+#include <iostream>
+#include <fstream>
 
 class Text {
 
@@ -53,7 +55,7 @@ public:
 		if (FT_Init_FreeType(&ft))cout << "ERROR::FREETYPE: Could not init FreeType Library" << endl;
 		if (FT_New_Face(ft, "Fonts/NotoMono-Regular.ttf", 0, &face))cout << "ERROR::FREETYPE: Failed to load font" << endl;
 
-		fontSize = 20;
+		fontSize = 14;// 20;
 		FT_Set_Pixel_Sizes(face, 0, fontSize);
 
 		loadCharacters();
@@ -205,7 +207,7 @@ public:
 				spaces += ' ';
 			}
 
-			RenderText(width,textShader, spaces+to_string(i+1), keywordType, 5, height - 100 - (i+startY)*(rows + fontSize*0.5), 1.0, glm::vec3(1, 1, 1), false);
+			RenderText(width,textShader, spaces+to_string(i+1), keywordType, 10, height - 100 - (i+startY)*(rows + fontSize*0.5), 1.0, glm::vec3(1, 1, 1), false);
 		}
 
 
@@ -223,7 +225,7 @@ public:
 
 	bool isAlphaBeta(char c) {
 
-		string ab = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+		string ab = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#";
 		
 		bool found = false;
 		for (int i = 0; i < ab.length();i++)if (ab[i] == c)return true;
@@ -238,7 +240,7 @@ public:
 			"if","else","mix","step","smoothstep","dot","void","length","normalize","sampler2D", "samplerCube",
 			"in","out","clamp","for","break","continue","int","sin","cos","tan","sinh","cosh","tanh",
 			"asin","acos","atan","mod","min","max","sign","cross","fract","ceil","floor","abs","inout","bool",
-			"mat2", "mat3", "mat4", "struct", "#define"};
+			"mat2", "mat3", "mat4", "struct", "#define", "const"};
 
 		vector<int> keywordType;
 
@@ -248,12 +250,22 @@ public:
 
 		//remove_if(text.begin(), text.end(), isspace);
 		int counter = 0;
+		int commentI = -1;
 		for (int i = 0; i < text.length(); i++) keywordType.push_back(0);
 		for (int i = 0; i < text.length();i++) {
 
 			char ci = text[i];
 
-			if (ci == ' ')continue;
+			if (ci == '/' && text[i + 1] == '/') {
+				commentI = i;
+				break;
+			}
+
+			if (ci == ' ' || isAlphaBeta(ci)==false) {
+				app.clear();
+				counter = 0;
+				continue;
+			}
 			app += ci;
 			counter++;
 
@@ -261,14 +273,14 @@ public:
 
 				string test = testSet[j];
 
-				
-
 				if (app.compare(test)==0) {
-					if (isAlphaBeta(text[i+1])==false && isAlphaBeta(text[i-counter]==false)) {
-						for (int k = 0; k < counter; k++) keywordType[i - k] = 1;
-						app.clear();
-						counter = 0;
-						break;
+					if (isAlphaBeta(text[i+1])==false) {
+						if (isAlphaBeta(text[i - counter]) == false) {
+							for (int k = 0; k < counter; k++) keywordType[i - k] = 1;
+							app.clear();
+							counter = 0;
+							break;
+						}
 					}
 				}
 				else {
@@ -280,10 +292,16 @@ public:
 					}
 
 					if (temp.compare(test) == 0) {
-						if (isAlphaBeta(text[i + diff + counter]) == false && isAlphaBeta(text[i-counter]) == false) {
-							for (int k = 0; k < counter; k++)keywordType[i - k] = 1;
-							for (int k = 0; k < diff; k++)keywordType[i + k + 1] = 1;
-							break;
+						if (isAlphaBeta(text[i-counter]) == false) {
+							if (isAlphaBeta(text[i+diff+1]) == false) {
+								for (int k = 0; k < counter; k++)keywordType[i - k] = 1;
+								for (int k = 0; k < diff; k++)keywordType[i + k + 1] = 1;
+
+								i = i + diff;
+								app.clear();
+								counter = 0;
+								break;
+							}
 						}
 						
 					}
@@ -305,6 +323,11 @@ public:
 			}
 		}
 		
+		if (commentI != -1) {
+			for (int i = commentI; i < text.length();i++) {
+				keywordType[i] = 2;
+			}
+		}
 
 		return keywordType;
 
@@ -326,6 +349,7 @@ public:
 			if (keywords) {
 				if (keywordType[counter] == 0)shader.setVec3("textColor", color);
 				else if (keywordType[counter] == 1)shader.setVec3("textColor", glm::vec3(51 / 255., 131 / 255., 247 / 255.));
+				else if(keywordType[counter] == 2) shader.setVec3("textColor", glm::vec3(45 / 255., 155 / 255., 45 / 255.));
 			}
 			else shader.setVec3("textColor", color);
 			
@@ -377,13 +401,13 @@ public:
 
 			if (startY == 0)return caretPos;
 
-			caretPos.y -= (rows + fontSize*0.5)*2;
-			startY+=2;
+			caretPos.y -= (rows + fontSize*0.5)*4;
+			startY+=4;
 		}
 		else {
 
-			caretPos.y += (rows + fontSize*0.5)*2;
-			startY-=2;
+			caretPos.y += (rows + fontSize*0.5)*4;
+			startY-=4;
 		}
 
 		
@@ -774,5 +798,33 @@ public:
 
 		return caretPos;
 
+	}
+
+	glm::vec2 backToHome() {
+
+		scrollX = 0;
+
+		caretPos.x = startX;
+		caretPosI.x = 0;
+
+
+		return caretPos;
+	}
+
+	void updateFile(string path) {
+		ofstream myfile(path);
+		
+		if (myfile.is_open()) {
+			myfile.clear();
+			int N = codeText.size();
+			for (int i = 0; i < N;i++) {
+				myfile << codeText[i] << endl;
+			}
+
+		}
+		else {
+			cout << "error opening file. Check if path is correct." << endl;
+		}
+		myfile.close();
 	}
 };

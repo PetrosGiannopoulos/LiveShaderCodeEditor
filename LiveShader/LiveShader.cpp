@@ -27,10 +27,11 @@ int main()
 	glfwSetCharCallback(graphics->window, characterWrapper);
 
 	glfwSetInputMode(graphics->window,GLFW_STICKY_KEYS, 1);
-
+	
 	graphics->mainLoop();
 
 	graphics->terminate();
+
 
 	system("pause");
 

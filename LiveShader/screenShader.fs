@@ -11,6 +11,11 @@ uniform float height;
 
 uniform vec2 caretPos;
 
+uniform vec2 minSelectedArea;
+uniform vec2 maxSelectedArea;
+
+uniform bool isSelected;
+
 void main()
 {
 
@@ -55,4 +60,12 @@ void main()
 
 
 	if(gl_FragCoord.x<70)FragColor = vec4(0,0,0,1)+(aTexCoords.y*0.15);
+
+	//selected area
+	//FragColor *= vec4(0.3,0.3,0.74,1);
+	if(isSelected){
+		if((gl_FragCoord.x>minSelectedArea.x && gl_FragCoord.x<maxSelectedArea.x) && (gl_FragCoord.y<minSelectedArea.y && gl_FragCoord.y>maxSelectedArea.y)){
+			FragColor *= vec4(0.3,0.3,0.74,1);
+		}
+	}
 } 

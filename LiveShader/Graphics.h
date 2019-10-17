@@ -54,6 +54,23 @@ public:
 	unsigned int computeShaderTexture;
 	CShader computeShader;
 
+	glm::vec3 lightPos;
+
+	glm::mat4 projection;
+
+	unsigned int cubemapTexture;
+	unsigned int planeTexture;
+	unsigned int depthTexture;
+	unsigned int ssaoColorBufferBlur;
+
+	bool displayMode = false;
+
+	glm::vec2 minSelectedArea;
+	glm::vec2 maxSelectedArea;
+	glm::vec2 pressCoords;
+
+	float time = 0;
+
 public:
 
 
@@ -62,10 +79,10 @@ public:
 	}
 
 	Graphics() {
-
+		
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_SAMPLES, 4);
@@ -74,7 +91,7 @@ public:
 		mode = glfwGetVideoMode(monitor);
 		window = glfwCreateWindow(mode->width, mode->height, "My Title", NULL, NULL);
 
-
+		
 		if (window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
@@ -109,7 +126,7 @@ public:
 		caretPos = codeEditor.initCaretPos(mode->height);
 
 
-		computeShader = CShader("Presets/ComputeShaderPreset1.glslcs");
+		computeShader = CShader("Presets/ComputeShaderPreset.glslcs");
 		computeShaderTexture = computeShader.createFrameBufferTexture();
 
 		computeShader.use();
@@ -119,6 +136,26 @@ public:
 		computeShader.setInt("shadowMap", 3);
 
 		codeEditor.readLines(computeShader.getLines());
+
+		camera = Camera(glm::vec3(10.0f, 8.0f, 20.0f));
+		camera.Pitch -= 15;
+		camera.updateCameraVectors();
+
+		lightPos = glm::vec3(10.0f, 16.0f, -5.0f);
+
+		vector<std::string> faces
+		{
+			"Textures/s_right.jpg",
+			"Textures/s_left.jpg",
+			"Textures/s_top.jpg",
+			"Textures/s_bottom.jpg",
+			"Textures/s_front.jpg",
+			"Textures/s_back.jpg",
+
+		};
+		cubemapTexture = loadCubemap(faces);
+
+		planeTexture = loadTexture("Textures/floor_.jpg");
 	}
 
 
@@ -139,6 +176,8 @@ public:
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+
+			//time+= 0.1;
 		}
 	}
 
@@ -149,31 +188,97 @@ public:
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//execute compute shader
+		
+		if (displayMode) {
+			projection = glm::perspective(glm::radians(camera.Zoom), (float)(mode->width*0.5) / (float)mode->height, 0.1f, 1000.0f);
+			computeShaderTrace(projection*camera.GetViewMatrix());
+		}
+
 		screenShader.use();
 
 		screenShader.setFloat("width", mode->width);
 		screenShader.setFloat("height", mode->height);
 
+		screenShader.setBool("isSelected", true);
+		screenShader.setVec2("minSelectedArea",minSelectedArea);
+		screenShader.setVec2("maxSelectedArea",maxSelectedArea);
+
 		//set caretPos
 		codeEditor.caretPos = caretPos;
 
 		screenShader.setVec2("caretPos", codeEditor.caretPos);
-
+		glDisable(GL_DEPTH_TEST);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, codeScreenTexture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, displayScreenTexture);
+		glBindTexture(GL_TEXTURE_2D, computeShaderTexture);
 		renderScreenQuad();
 		glBindVertexArray(screenQuadVAO);
-		glDisable(GL_DEPTH_TEST);
+		
 		
 		//glDisable(GL_DEPTH_TEST);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//draw Code
-		codeEditor.renderCode(mode->width,mode->height);
+		if(displayMode == false)codeEditor.renderCode(mode->width,mode->height);
 
 		glEnable(GL_DEPTH_TEST);
+	}
+
+	int nextPowerOfTwo(int x) {
+		x--;
+		x |= x >> 1; // handle 2 bit numbers
+		x |= x >> 2; // handle 4 bit numbers
+		x |= x >> 4; // handle 8 bit numbers
+		x |= x >> 8; // handle 16 bit numbers
+		x |= x >> 16; // handle 32 bit numbers
+		x++;
+		return x;
+	}
+
+	void computeShaderTrace(glm::mat4 projectionview) {
+		glm::mat4 invProjectionView = glm::inverse(projectionview);
+
+		float lightLength = 25;
+		glm::mat4 lightViewMatrix = glm::lookAt(lightPos, lightPos + glm::vec3(0, -1, 0), glm::vec3(0, 1, 0));
+		//lightProjection = glm::ortho(lightPos.x - lightLength, lightPos.x + lightLength, lightPos.y - lightLength, lightPos.y + lightLength, lightPos.z + lightLength, lightPos.z - lightLength)*lightViewMatrix;
+
+		computeShader.use();
+
+		computeShader.setVec3("eye", camera.Position);
+		computeShader.setVec3("ray00", camera.GetEyeRay(-1, -1, invProjectionView));
+		computeShader.setVec3("ray01", camera.GetEyeRay(-1, 1, invProjectionView));
+		computeShader.setVec3("ray10", camera.GetEyeRay(1, -1, invProjectionView));
+		computeShader.setVec3("ray11", camera.GetEyeRay(1, 1, invProjectionView));
+
+		computeShader.setVec4("sphere", glm::vec4(5,20,20,1));
+		computeShader.setVec4("lightPos", glm::vec4(lightPos,1));
+		computeShader.setVec4("mirror", glm::vec4(17,20,20,10));
+		computeShader.setFloat("time", time);
+
+		glBindImageTexture(0, computeShaderTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+		/* Compute appropriate invocation dimension. */
+		unsigned int worksizeX = nextPowerOfTwo(1000);
+		unsigned int worksizeY = nextPowerOfTwo(800);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, planeTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+
+		glDispatchCompute(worksizeX / 32, worksizeY / 32, 1);
+		
+		/* Reset image binding. */
+		glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
 	unsigned int squadVAO = 0;
@@ -207,18 +312,21 @@ public:
 
 	void processInput()
 	{
+		/*
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
+		*/
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			camera.ProcessKeyboard(FORWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			camera.ProcessKeyboard(BACKWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			camera.ProcessKeyboard(LEFT, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			camera.ProcessKeyboard(RIGHT, deltaTime);
-
+		if (displayMode) {
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				camera.ProcessKeyboard(FORWARD, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				camera.ProcessKeyboard(BACKWARD, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				camera.ProcessKeyboard(LEFT, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				camera.ProcessKeyboard(RIGHT, deltaTime);
+		}
 
 		int newLeftMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 		if (newLeftMouseButtonState == GLFW_RELEASE && oldLeftMouseButtonState == GLFW_PRESS) {
@@ -239,7 +347,32 @@ public:
 				//caretPos.y = mode->height - caretPos.y;
 				codeEditor.searchingLine = false;
 				
+				
 			}
+		}
+
+		if (newLeftMouseButtonState == GLFW_PRESS) {
+			double x, y;
+
+			glfwGetCursorPos(window, &x, &y);
+			
+			y = y + 25;
+			if (pressCoords.x < x) {
+				minSelectedArea.x = pressCoords.x;
+				minSelectedArea.y = pressCoords.y;
+				maxSelectedArea.x = x;
+				maxSelectedArea.y = y;
+			}
+			else {
+				
+				minSelectedArea.x = x;
+				minSelectedArea.y = y;
+				maxSelectedArea.x = pressCoords.x;
+				maxSelectedArea.y = pressCoords.y;
+			}
+
+			pressCoords.x = x;
+			pressCoords.y = y;
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;
@@ -261,20 +394,20 @@ public:
 
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		if (firstMouse)
-		{
+		
+			if (firstMouse)
+			{
+				lastX = xpos;
+				lastY = ypos;
+				firstMouse = false;
+			}
+
+			float xoffset = xpos - lastX;
+			float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
 			lastX = xpos;
 			lastY = ypos;
-			firstMouse = false;
-		}
-
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-		lastX = xpos;
-		lastY = ypos;
-
-		camera.ProcessMouseMovement(xoffset, yoffset);
+			if (displayMode) camera.ProcessMouseMovement(xoffset, yoffset);
 
 		
 	}
@@ -286,7 +419,8 @@ public:
 
 		if (yoffset > 0)caretPos = codeEditor.updateCaretByScroll(true);
 		else if (yoffset < 0)caretPos = codeEditor.updateCaretByScroll(false);
-		camera.ProcessMouseScroll(yoffset);
+		
+		if(displayMode)camera.ProcessMouseScroll(yoffset);
 	}
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -346,6 +480,18 @@ public:
 				//tab button
 				caretPos = codeEditor.addTabSpace();
 				break;
+			case 268:
+				//home button
+				caretPos = codeEditor.backToHome();
+				break;
+			case 256:
+				//esc button
+				if (displayMode) {
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					displayMode = false;
+				}
+				else glfwSetWindowShouldClose(window, true);
+				break;
 			default:
 				break;
 		};
@@ -354,8 +500,26 @@ public:
 	void character_callback(GLFWwindow* window, unsigned int keycode) {
 		//cout << keycode << endl;
 
-		char c = keycode;
-		caretPos = codeEditor.insertCharacter(c);
+		if (keycode == 96 && displayMode == false) {
+			codeEditor.updateFile("Presets/ComputeShaderPreset.glslcs");
+			computeShader = CShader("Presets/ComputeShaderPreset.glslcs");
+			computeShaderTexture = computeShader.createFrameBufferTexture();
+
+			computeShader.use();
+			computeShader.setInt("skybox", 0);
+			computeShader.setInt("diffuseTexture", 1);
+			computeShader.setInt("ssao", 2);
+			computeShader.setInt("shadowMap", 3);
+
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			displayMode = true;
+		}
+		else {
+			if (displayMode == false) {
+				char c = keycode;
+				caretPos = codeEditor.insertCharacter(c);
+			}
+		}
 	}
 
 	void terminate() {
@@ -367,7 +531,7 @@ public:
 	unsigned int loadTexture(char const * path)
 	{
 
-		stbi_set_flip_vertically_on_load(1);
+		//stbi_set_flip_vertically_on_load(1);
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 
