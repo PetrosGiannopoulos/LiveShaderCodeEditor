@@ -72,6 +72,11 @@ struct hitinfo {
     vec4 e;
     vec4 color;
     vec4 lighting;
+    vec3 entryPoint;
+    vec3 exitPoint;
+    float extraPath;
+    vec3 pTIR;
+    bool firstTIR;
 };
  
 struct RayHit
@@ -114,7 +119,7 @@ float smin(float a, float b){
 float FresnelReflectAmount (float n1, float n2, vec3 normal, vec3 incident)
 {
         // Schlick aproximation
-        float OBJECT_REFLECTIVITY = 0.1;
+        float OBJECT_REFLECTIVITY = 0.01;
         float r0 = (n1-n2) / (n1+n2);
         r0 *= r0;
         float cosX = -dot(normal, incident);
@@ -276,6 +281,7 @@ float intersectTriangle(vec3 origin, vec3 ray, vec3 v0, vec3 v1, vec3 v2) {
 bool intersectTriangles(vec3 origin, vec3 dir, inout hitinfo info) {
     bool found = false;
     hitinfo tinfo;
+    //tinfo.t = MAX_SCENE_BOUNDS;
  
     vec3 offset = vec3(0,-2.5,-30);
     uint numTris = sphereTris.length();
@@ -286,6 +292,7 @@ bool intersectTriangles(vec3 origin, vec3 dir, inout hitinfo info) {
         float t = intersectTriangle(origin, dir, tri.v1.xyz+customModel.xyz+offset, tri.v2.xyz+customModel.xyz+offset, tri.v3.xyz+customModel.xyz+offset);
         if (t >= 0.0 && t < info.t) {
             info.t = t;
+            //info.t = tinfo.t;
             info.n = normalize(tri.n1.xyz);
             found = true;
             
@@ -311,9 +318,12 @@ bool IntersectSphere(vec3 origin,vec3 dir, inout hitinfo info, vec4 pos){
         //float t2 = -b+sqrt(t);
         
         //t = t1<t2 ? t1 : t2; 
-        found = (t >= 0.0) && (t < info.t);
+        found = (t>=0.0) && (t < info.t);
         if(found)info.t = t;
         //info.t = t;
+        //found = (t1>=0.0) && (t1< info.t);
+        //t = t1; 
+        //info.t = t1; 
     
     }
  
@@ -323,8 +333,8 @@ bool IntersectSphere(vec3 origin,vec3 dir, inout hitinfo info, vec4 pos){
 bool intersectSpheres(vec3 origin, vec3 dir, inout hitinfo info){
     bool found = false;
     hitinfo tinfo;
-    tinfo.t = MAX_SCENE_BOUNDS;
-    //tinfo.t = info.t;
+    tinfo.t = info.t;
+    
  
     vec3 offset = vec3(0, -2.5, -30);
     for(int i=0;i<10;i++){
@@ -335,15 +345,13 @@ bool intersectSpheres(vec3 origin, vec3 dir, inout hitinfo info){
         bool so = IntersectSphere(origin, dir, tinfo,spherePos);
         
         if(so){
-            
+                 
                 info.t = tinfo.t;
                 //info.t = smin(info.t,tinfo.t); 
-                vec3 po = origin+dir*tinfo.t;
+                vec3 po = origin+dir*info.t; 
                 info.p = po;
                 info.n = normalize(po-spherePos.xyz); 
-                found = true;
-                
-                 
+                found = true; 
         }    
          
     }
@@ -352,26 +360,25 @@ bool intersectSpheres(vec3 origin, vec3 dir, inout hitinfo info){
 }
  
  
-bool intersectBox(vec3 origin, vec3 dir, const box b, inout vec2 ts, inout hitinfo info) {
+bool intersectBox(vec3 origin, vec3 dir, const box b, inout vec2 lambda, inout hitinfo info) {
     vec3 tMin = (b.min - origin) / dir;
     vec3 tMax = (b.max - origin) / dir;
     vec3 t1 = min(tMin, tMax);
     vec3 t2 = max(tMin, tMax);
     float tNear = max(max(t1.x, t1.y), t1.z);
     float tFar = min(min(t2.x, t2.y), t2.z);
-    ts = vec2(tNear, tFar);
+    vec2 ts = vec2(tNear, tFar);
     
     bool found = false; 
-    found = (ts.x>=0.0) &&  (ts.x<ts.y);// && (ts.x<MAX_SCENE_BOUNDS);
-    if(tNear<info.t && found)info.t = tNear;
+    found = (ts.x>=0.0) && (ts.x<=ts.y);
+    //if(tNear<info.t && found)info.t = tNear;
+    lambda = ts;
     return found;
 }
  
 bool intersectBoxes(inout vec3 origin, inout vec3 dir, inout hitinfo info) {
-    float smallest = MAX_SCENE_BOUNDS;//info.t;
     bool found = false;
-    hitinfo tinfo;
-    tinfo.t = smallest;
+    vec2 lambda;
     for (int i = 0; i < NUM_BOXES; i++) {
  
         box pos = boxes[i];
@@ -390,11 +397,9 @@ bool intersectBoxes(inout vec3 origin, inout vec3 dir, inout hitinfo info) {
         }
         //vec2 lambda = intersectBox(origin, dir, pos);
         //if (lambda.x > 0.0 && lambda.x < lambda.y && lambda.x < smallest) {
-        vec2 lambda;
-        bool bo = intersectBox(origin, dir, pos, lambda,tinfo);
+        bool bo = intersectBox(origin, dir, pos, lambda,info);
         if(bo){
             info.t = lambda.x;
-            smallest = lambda.x;
             found = true;
             info.type = 0;
             if(i==1)info.type = 1;
@@ -413,14 +418,13 @@ vec4 trace(inout vec3 origin, inout vec3 dir, out bool hitAnything, inout hitinf
     vec4 colorRes = vec4(0);
     hitAnything = false;
     //i.t = MAX_SCENE_BOUNDS;
-    i.type = -1; 
+    i.type = -1;  
     
     if (intersectBoxes(origin,dir, i)) {
         hitAnything = true;
         vec3 po = origin+dir*i.t;
         vec2 boxUV = vec2(0);
-        i.p = po;
-            
+        i.p = po; 
  
         if(i.type==1){
             i.n = normalize(po-cube.xyz-vec3(0,-2.5,-30));
@@ -445,7 +449,7 @@ vec4 trace(inout vec3 origin, inout vec3 dir, out bool hitAnything, inout hitinf
         colorRes = texture(diffuseTexture,boxUV);
         
     }
- 
+      
     if(intersectTriangles(origin,dir,i)){
         hitAnything = true;
  
@@ -454,7 +458,8 @@ vec4 trace(inout vec3 origin, inout vec3 dir, out bool hitAnything, inout hitinf
         i.type = 5;
         colorRes = vec4(0,0,1,1);
     }
-  
+     
+     
      
     if(intersectSpheres(origin,dir,i)){
         hitAnything = true;
@@ -467,16 +472,20 @@ vec4 trace(inout vec3 origin, inout vec3 dir, out bool hitAnything, inout hitinf
         //colorRes = texture(diffuseTexture,uvsphr);
         
     }
+    //i.t = MAX_SCENE_BOUNDS;
     
     //light ball 
     if(IntersectSphere(origin, dir, i, vec4(lightPos.xyz,0.3))){
+       hitAnything = true;
        vec3 po = origin+dir*i.t;
        i.p = po;
        i.n = normalize(po-lightPos.xyz);
        colorRes = vec4(i.n*0.5+0.5,0);
        i.type = 6; 
-    } 
-    
+    }
+     
+    if(hitAnything == false)i.type = 3;
+     
     i.color = colorRes; 
  
     return colorRes;
@@ -521,11 +530,9 @@ vec3 swap(inout float etai, inout float etat){
 vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo i){
     vec4 finalColor;
     
-    
-    if(hitAnything==false){
-    
-       i.type = 3;
-       i.e = vec4(0);
+    if(i.type == 3){ 
+       //i.type = 3;
+       i.e = vec4(vec3(1),1);
        finalColor = texture(skybox, dir);
        return finalColor; 
     } 
@@ -544,29 +551,41 @@ vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo
     }
  
     if(i.type==2){
+        float ior = 1.125;
+        float air = 1.00029;
+        
         if(i.refl==1){
             origin = i.p+dir*0.001;
-            float ior = 1.120;
-            
             
             //if(n1/n2*sin(theta1)>1) cannot refract 
             float fresnel; 
              
             if(i.reflOrder==1){
-                fresnel = FresnelReflectAmount(1,1.120,i.n,dir);
+                fresnel = FresnelReflectAmount(air,ior,i.n,dir);
                 if(fresnel<1){
-                    dir = refract(dir, i.n, 1./ior);
+                    dir = refract(dir, i.n, air/ior);
                     i.reflOrder = -1;
+                    i.entryPoint = i.p;
                 }
-                else dir = reflect(dir,i.n); 
+                else {
+                    dir = reflect(dir,i.n);
+                    i.pTIR = origin;
+                    
+                    
+                } 
             }
             else{
-                fresnel = FresnelReflectAmount(1.120,1,i.n,dir); 
+                fresnel = FresnelReflectAmount(ior,air,i.n,dir); 
                 if(fresnel<1){
-                    dir = refract(dir, i.n,ior);
-                    i.reflOrder = 1;
+                    dir = refract(dir, i.n,ior/air);
+                    i.reflOrder = 1; 
+                    i.exitPoint = i.p;
+                  
                 }
-                else dir = reflect(dir,i.n); 
+                else {
+                    dir = reflect(dir,i.n);
+                    i.pTIR = origin; 
+                } 
             }
              
             if(fresnel<1)i.e *= (1-fresnel); 
@@ -574,9 +593,10 @@ vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo
         else{
             origin = i.p+i.n*0.001;
             //dir = reflect(dir, i.n);
-            float fresnel = FresnelReflectAmount(1,1.120,i.n,dir);
+            float fresnel = FresnelReflectAmount(air,ior,i.n,dir);
             dir = reflect(dir, i.n);
             i.e *= specular;//fresnel;
+            i.exitPoint = i.p;
         }
     } 
  
@@ -592,7 +612,7 @@ bool vany(vec3 v){
 }
  
 vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowTraced, inout vec4 shadowRes, in float ambOcclusion){
-    bool hitAnything = false;
+    bool hitAnything;// = false;
     bool lightTraced = false;
     vec4 pColor = vec4(0);
     vec3 lightColor = vec3(0.7);
@@ -604,12 +624,16 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
     vec4 finalColor = vec4(1);
     info.reflOrder = 1;
     info.color = vec4(0);
+    info.extraPath = 0;
+    info.firstTIR = true;
    
     info.t = MAX_SCENE_BOUNDS; 
     for(int i=0;i<15;i++){
-        //info.t = MAX_SCENE_BOUNDS;
-        
+        info.t = MAX_SCENE_BOUNDS;
+        //info.e = rayEnergy; 
         vec4 color = trace(origin, direction, hitAnything, info);
+        //if(info.type == 3 || hitAnything == false)info.t = MAX_SCENE_BOUNDS;
+        //if(hitAnything == false)info.t = MAX_SCENE_BOUNDS;
         //origin = origin + direction*0.01;
         //info.color = color; 
         
@@ -631,8 +655,8 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         //finalColor = shade(origin,direction, hitAnything,info);
         //origin = origin + direction*0.01;
         
-        if(info.type!=1 && info.type!=6)info.color += pE*shade(origin,direction,hitAnything,info);
-  
+        if(info.type!=1 && info.type!=6)info.color += pE*shade(origin,direction,hitAnything,info); 
+         
         if(!vany(info.e.xyz))break; 
         
     }
@@ -759,10 +783,14 @@ void main(void) {
     shadowTraced = false;
     info2.refrType = 0;
     vec4 refractionColor = castRay(origin, direction, info2, shadowTraced, shadowRes, ambientOcclusion); 
+   
+    vec3 absorbColor = vec3(1)-vec3(0.01,0.01,1); 
+    refractionColor.xyz *= exp(-absorbColor*(length(info2.exitPoint-info2.entryPoint)+info2.extraPath)); 
      
-    finalColor = mix(finalColor, refractionColor, 0.9);
-    //if(shadowTraced)finalColor = mix(shadowRes, finalColor, 0.5);
-    
+    //finalColor = mix(finalColor, refractionColor, 0.99);
+    //finalColor.xyz *= exp(-absorbColor*length(info2.exitPoint-origin));
+    finalColor = mix(finalColor, refractionColor, 0.99);
+    //if(shadowTraced)finalColor = mix(shadowRes, finalColor, 0.5); 
     
     //finalColor = pow(finalColor, vec4(1./2.2)); 
     imageStore(framebuffer, pix, finalColor);

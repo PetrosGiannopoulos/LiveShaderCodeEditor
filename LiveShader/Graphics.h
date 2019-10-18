@@ -71,6 +71,9 @@ public:
 
 	float time = 0;
 
+	Models model;
+	unsigned int ssbo_sphere;
+
 public:
 
 
@@ -91,6 +94,7 @@ public:
 		mode = glfwGetVideoMode(monitor);
 		window = glfwCreateWindow(mode->width, mode->height, "My Title", NULL, NULL);
 
+		//cout << "width: " << mode->width << " | height: " << mode->height << endl;
 		
 		if (window == NULL)
 		{
@@ -156,6 +160,37 @@ public:
 		cubemapTexture = loadCubemap(faces);
 
 		planeTexture = loadTexture("Textures/floor_.jpg");
+
+		//model = Models();
+		//model.loadModel("icosahedron.obj");
+
+		//model.rebuildStructure();
+		//model.rescaleModel(1);
+
+		//model.fillSSBO();
+		
+		//initSSBOData();
+	}
+
+	void initSSBOData() {
+
+		//GL_SHADER_STORAGE_BUFFER
+		//compute Shader Buffer Data
+		glCreateBuffers(1, &ssbo_sphere);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_sphere);
+
+		glNamedBufferData(ssbo_sphere, model.ssbo_triangles.size() * sizeof(Models::TriangleSSBO), model.ssbo_triangles.data(), GL_STATIC_DRAW);
+
+		//glNamedBufferData(ssbo_sphere, mcCubes.triangulator.mesh.ssbo_triangles.size() * sizeof(Models::TriangleSSBO), mcCubes.triangulator.mesh.ssbo_triangles.data(), GL_STATIC_DRAW);
+		//glNamedBufferData(ssbo_sphere, 1000 * sizeof(Models::TriangleSSBO), NULL, GL_DYNAMIC_DRAW);
+
+		//glBufferData(GL_SHADER_STORAGE_BUFFER, collObjects[0].ssbo_triangles.size() * sizeof(Models::TriangleSSBO), collObjects[0].ssbo_triangles.data(), GL_DYNAMIC_COPY);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_sphere);//binding number = 1
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+
+
+
 	}
 
 
@@ -255,13 +290,15 @@ public:
 		computeShader.setVec4("sphere", glm::vec4(5,20,20,1));
 		computeShader.setVec4("lightPos", glm::vec4(lightPos,1));
 		computeShader.setVec4("mirror", glm::vec4(17,20,20,10));
+		//computeShader.setVec4("customModel", glm::vec4(5,20,20,1));
 		computeShader.setFloat("time", time);
+		//computeShader.setInt("sphereTriangleSize", model.ssbo_triangles.size());
 
 		glBindImageTexture(0, computeShaderTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 		/* Compute appropriate invocation dimension. */
-		unsigned int worksizeX = nextPowerOfTwo(1000);
-		unsigned int worksizeY = nextPowerOfTwo(800);
+		unsigned int worksizeX = nextPowerOfTwo(mode->width/2);
+		unsigned int worksizeY = nextPowerOfTwo(mode->height);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
