@@ -88,7 +88,7 @@ public:
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		glfwWindowHint(GLFW_SAMPLES, 4);
+		//glfwWindowHint(GLFW_SAMPLES, 4);
 
 		GLFWmonitor *monitor = glfwGetPrimaryMonitor();
 		mode = glfwGetVideoMode(monitor);
@@ -112,6 +112,7 @@ public:
 
 		}
 
+		//glEnable(GL_MULTISAMPLE);
 		glEnable(GL_DEPTH_TEST);
 		glViewport(0, 0, mode->width, mode->height);
 
@@ -161,14 +162,15 @@ public:
 
 		planeTexture = loadTexture("Textures/floor_.jpg");
 
-		//model = Models();
+		model = Models();
 		//model.loadModel("icosahedron.obj");
 
 		//model.rebuildStructure();
-		//model.rescaleModel(1);
+		//model.rescaleModel(3);
 
 		//model.fillSSBO();
 		
+		//cout << model.ssbo_triangles.size() << endl;
 		//initSSBOData();
 	}
 
@@ -212,7 +214,7 @@ public:
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 
-			//time+= 0.1;
+			time+= 0.1;
 		}
 	}
 
@@ -287,12 +289,15 @@ public:
 		computeShader.setVec3("ray10", camera.GetEyeRay(1, -1, invProjectionView));
 		computeShader.setVec3("ray11", camera.GetEyeRay(1, 1, invProjectionView));
 
+		lightPos.y = 10 * (sin(time)*0.5 + 0.5);
+		//lightPos.z = -15;
 		computeShader.setVec4("sphere", glm::vec4(5,20,20,1));
 		computeShader.setVec4("lightPos", glm::vec4(lightPos,1));
 		computeShader.setVec4("mirror", glm::vec4(17,20,20,10));
-		//computeShader.setVec4("customModel", glm::vec4(5,20,20,1));
+		computeShader.setVec4("customModel", glm::vec4(0,5,20,1));
+		computeShader.setVec4("cube", glm::vec4(5,5,20,1));
 		computeShader.setFloat("time", time);
-		//computeShader.setInt("sphereTriangleSize", model.ssbo_triangles.size());
+		computeShader.setInt("sphereTriangleSize", model.ssbo_triangles.size());
 
 		glBindImageTexture(0, computeShaderTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 

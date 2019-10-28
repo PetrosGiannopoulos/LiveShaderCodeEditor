@@ -397,17 +397,18 @@ public:
 
 	glm::vec2 updateCaretByScroll(bool upwards) {
 
+		int scrollSpeed = 5;
 		if (upwards > 0) {
 
 			if (startY == 0)return caretPos;
 
-			caretPos.y -= (rows + fontSize*0.5)*4;
-			startY+=4;
+			caretPos.y -= (rows + fontSize*0.5)*scrollSpeed;
+			startY+= scrollSpeed;
 		}
 		else {
 
-			caretPos.y += (rows + fontSize*0.5)*4;
-			startY-=4;
+			caretPos.y += (rows + fontSize*0.5)*scrollSpeed;
+			startY-= scrollSpeed;
 		}
 
 		
