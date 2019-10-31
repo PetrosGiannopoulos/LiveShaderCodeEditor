@@ -57,6 +57,7 @@ layout(std430, binding = 1) buffer SphereTriangles {
 struct hitinfo {
     vec2 uv;
     float t;
+    float t2;
     vec3 n;
     vec3 p;
  
@@ -64,11 +65,6 @@ struct hitinfo {
     int refl;
     int reflOrder;
     int refrType;
-    int startType;
-    vec3 startN;
-    vec3 viewDir;
-    vec3 vertexE;
-    vec3 vertexP;
     vec4 e;
     vec4 color;
     vec4 lighting;
@@ -342,7 +338,7 @@ bool intersectSpheres(vec3 origin, vec3 dir, inout hitinfo info){
         vec4 spherePos = sphere+vec4(vec3(i*5,0,0),0);
         spherePos.xyz += offset;
         spherePos.y -= 18;
-        spherePos.w = sphere.w;
+        spherePos.w = sphere.w*2;
         //hitinfo tinfo;
         bool so = IntersectSphere(origin, dir, tinfo,spherePos);
         
@@ -415,6 +411,93 @@ bool intersectBoxes(inout vec3 origin, inout vec3 dir, inout hitinfo info) {
     return found;
 }
  
+float dot2( in vec3 v ) { return dot(v,v); }
+ 
+bool intersectCappedCone( in vec3  origin, in vec3  dir, 
+                  in vec3  pa, in vec3  pb, 
+                  in float ra, in float rb, inout hitinfo info )
+{
+    
+    //pa: center point of top, pb: center point of bottom
+    //ra: radius of top, rb: radius of bottom
+ 
+    vec3  ba = pb - pa;
+    vec3  oa = origin - pa;
+    vec3  ob = dir - pb;
+    
+    float m0 = dot(ba,ba);
+    float m1 = dot(oa,ba);
+    float m2 = dot(ob,ba); 
+    float m3 = dot(dir,ba);
+ 
+    float t, t2; 
+     
+    //caps
+    if( m1<0.0 ) { 
+        if( dot2(oa*m3-dir*m1)<(ra*ra*m3*m3) ){
+            t = -m1/m3;
+            t2 = info.t;
+            info.n = -ba*inversesqrt(m0);
+            return true;//vec4(-m1/m3,-ba*inversesqrt(m0)); 
+        }
+    }
+    else if( m2>0.0 ) { 
+        if( dot2(ob*m3-dir*m2)<(rb*rb*m3*m3) ){
+            t = -m2/m3;
+            t2 = info.t;
+            info.n = ba*inversesqrt(m0);
+            return true;
+            //return vec4(-m2/m3, ba*inversesqrt(m0)); 
+        }
+    }
+    
+    // body
+    float m4 = dot(dir,oa);
+    float m5 = dot(oa,oa);
+    float rr = ra - rb;
+    float hy = m0 + rr*rr;
+    
+    float k2 = m0*m0    - m3*m3*hy;
+    float k1 = m0*m0*m4 - m1*m3*hy + m0*ra*(rr*m3*1.0        );
+    float k0 = m0*m0*m5 - m1*m1*hy + m0*ra*(rr*m1*2.0 - m0*ra);
+    
+    float h = k1*k1 - k2*k0;
+    if( h<0.0 ) return false;//vec4(-1.0);
+ 
+    t = (-k1-sqrt(h))/k2;
+    t2 = (-k1+sqrt(h))/k2;
+     
+    float y = m1 + t*m3;
+    float y2 = m1 + t2*m3;
+    bool found = false;
+    if( y>0.0 && y<m0) 
+    {
+        
+            info.t = t;
+            //info.t2 = t2;
+            info.n = normalize(m0*(m0*(oa+t*dir)+rr*ba*ra)-ba*hy*y);
+            info.p = origin+dir*t;
+            found = (t>=0.0 && t<info.t);  
+            if(found)info.t = t;
+         
+        //info.t2 = t2;     
+        //info.n = normalize(m0*(m0*(oa+t*dir)+rr*ba*ra)-ba*hy*y);
+        //info.p = origin+dir*t;
+        
+        //return vec4(t, normalize(m0*(m0*(oa+t*rd)+rr*ba*ra)-ba*hy*y));
+    }
+     
+    //if(y2>0.0 && y2<m0){
+       
+       //if(t2>0.0 && t2<info.t2){
+           //info.t2 = t2;
+      //     flag2 = true;
+       //} 
+    //} 
+    
+    return found;//vec4(-1.0);
+}
+ 
 float sdSphere(vec3 p, float s){
     return length(p)-s; 
 }
@@ -451,7 +534,7 @@ float map(vec3 p){
        vec3 b = abs(pos.max-pos.min)*0.5;
        vec3 c = pos.min+b*0.5;
        float h = sdBox(p-c,b);
-       info.t = min(h,info.t); 
+       minH = min(h,minH); 
     }*/
    
     for(int i=0;i<5;i++){
@@ -459,7 +542,7 @@ float map(vec3 p){
         vec4 spherePos = sphere+vec4(vec3(i*5,0,0),0);
         spherePos.xyz += offset;
         spherePos.y -= 18;
-        spherePos.w = sphere.w;
+        spherePos.w = sphere.w*2;
         float h = sdSphere(p-spherePos.xyz,spherePos.w);
         if(h<minH)minH = h; 
     } 
@@ -696,6 +779,62 @@ bool vany(vec3 v){
     return false; 
 }
  
+float sphDensity( vec3  origin, vec3  dir,   // ray origin, ray direction
+                  vec3  sc, float sr,   // sphere center, sphere radius
+                  float dbuffer, inout hitinfo info )       // depth buffer
+{
+    // dbuffer = MAX_SCENE_BOUNDS
+    // only mix current color with volume color if result >0.0
+    // normalize the problem to the canonical sphere
+    float ndbuffer = dbuffer / sr;
+    hitinfo tinfo;
+    tinfo.t = info.t;
+    //tinfo.t = MAX_SCENE_BOUNDS;
+    //tinfo.t2 = MAX_SCENE_BOUNDS; 
+    bool co = intersectCappedCone(origin,dir, lightPos.xyz, lightPos.xyz-vec3(0,-4,0),0.01,2,tinfo); 
+    
+    /*vec3  rc = (origin - sc)/sr;
+    
+    // find intersection with sphere
+    float b = dot(dir,rc);
+    float c = dot(rc,rc) - 1.0;
+    float h = b*b - c;
+ 
+    // not intersecting
+    if( h<0.0 ) return 0.0;
+    
+    h = sqrt( h );
+    
+    //return h*h*h;
+ 
+    float t1 = -b - h;
+    float t2 = -b + h;*/
+ 
+    if(co==false)return 0.0;
+    info.type = 7;
+     
+    info.t = tinfo.t;
+    info.t2 = tinfo.t2; 
+ 
+    float t1 = info.t;
+    float t2 = info.t2;
+    vec3 rc = (origin-sc)/sr;
+    float b = dot(dir,rc);
+    float c = dot(rc,rc)-1.0;
+ 
+    // not visible (behind camera or behind ndbuffer)
+    if( t2<0.0 || t1>ndbuffer ) return 0.0; 
+     
+    // clip integration segment from camera to ndbuffer
+    t1 = max( t1, 0.0 );
+    t2 = min( t2, ndbuffer );
+ 
+    // analytical integration of an inverse squared density
+    float i1 = -(c*t1 + b*t1*t1 + t1*t1*t1/3.0);
+    float i2 = -(c*t2 + b*t2*t2 + t2*t2*t2/3.0);
+    float res = (i2-i1)*(3.0/4.0);  
+    return res;
+}
  
 vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowTraced, inout vec4 shadowRes, in float ambOcclusion){
     bool hitAnything;// = false;
@@ -721,6 +860,7 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
     info.t = MAX_SCENE_BOUNDS; 
     for(int i=0;i<8;i++){
         info.t = MAX_SCENE_BOUNDS;
+        info.t2 = MAX_SCENE_BOUNDS;
         //info.e = rayEnergy;
          
         vec4 color = trace(origin, direction, hitAnything, info);
@@ -755,15 +895,14 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
           }
           float pes = clamp(res,0.0,1.0);
           //shadowsVar = pes;
-          if(hitAnything && pShadowInfo.type!=4){ 
-          //if(hitAnything && pShadowInfo.type!=0 ){ 
+          if(hitAnything && pShadowInfo.type!=4){  
               shadowTraced = true;
               shadowRes = vec4(0);
               shadowsVar = pes;
            } 
         }
    
-        info.lighting = BlinnPhong(origin, direction, info.n, info.p, vec3(50), lightPos.xyz);
+        info.lighting = BlinnPhong(origin, direction, info.n, info.p, vec3(100), lightPos.xyz);
    
         vec4 pE = info.e; 
         //finalColor = shade(origin,direction, hitAnything,info);
@@ -778,17 +917,12 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         //if(info.type!=6)info.color = (1-shadowsVar)*info.color*info.lighting;
         if(shadowTraced==false && info.type!=6)info.color *= info.lighting; 
         else if(info.type!=6 && info.type!=3)info.color *= (info.lighting*(shadowsVar)); 
-        //info.color *= mix(info.lighting, vec4(vec3(shadowsVar),1),0.5); 
+        //else if(info.type!=6 && info.type!=3)info.color*= mix(info.lighting,vec4(vec3(shadowsVar),1),0.4); 
         
+        float h = sphDensity(origin,direction, lightPos.xyz, 3, MAX_SCENE_BOUNDS, info);
+        if(h>0.0)info.color = mix(info.color,vec4(0.99,0.94,0.5,1),h); 
          
-        //if(info.type == 0)break; 
-         
-        //accLighting = pow(info.lighting*(1-shadowsVar),vec4(1./2.2));
-        //accLighting = lightingColor; 
         //if(info.type != 1 && info.type != 4)break; 
-        
-        //info.color = mix(info.color, info.color*info.lighting, 0.5); 
-        //info.color *= lightingColor;  
         if(!vany(info.e.xyz))break; 
         
     }
@@ -905,7 +1039,6 @@ void main(void) {
     vec3 oEye = eye;
     //reflection
     info.refl = 0;
-    info.startType = -1;
     finalColor = castRay(origin, direction, info, shadowTraced, shadowRes, ambientOcclusion);
  
     if(shadowTraced)finalColor = mix(shadowRes, finalColor, 0.5); 
@@ -924,7 +1057,8 @@ void main(void) {
     //finalColor.xyz *= exp(-absorbColor*length(info2.exitPoint-origin));
     finalColor = mix(finalColor, refractionColor, 0.99);
     //if(shadowTraced)finalColor = mix(shadowRes, finalColor, 0.5); 
-     
+    //float h = sphDensity(origin, direction,lightPos.xyz, 6,MAX_SCENE_BOUNDS);
+    //if(h>0.0)finalColor = mix(finalColor,vec4(0.99,0.94,0.5,1),h); 
     //finalColor = mix(finalColor, info2.lighting,0.5); 
     //finalColor = pow(finalColor, vec4(1./2.2)); 
     imageStore(framebuffer, pix, finalColor);

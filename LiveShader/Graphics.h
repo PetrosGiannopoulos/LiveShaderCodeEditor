@@ -197,7 +197,7 @@ public:
 
 
 	void mainLoop() {
-
+		int frameCount = 0;
 		while (!glfwWindowShouldClose(window))
 		{
 
@@ -205,6 +205,14 @@ public:
 			deltaTime = currentFrame - lastFrame;
 			lastFrame = currentFrame;
 			//cout <<"deltaTime: " << deltaTime << endl;
+			//frameCount++;
+
+			//if (deltaTime >= 1.0) {
+				//cout << "FPS: " << frameCount << endl;
+				//frameCount = 0;
+				//lastFrame = currentFrame;
+			//}
+
 			//Input
 			processInput();
 
