@@ -157,6 +157,10 @@ float LinearizeDepth(float depth)
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
  
+float random(vec2 co){
+    return fract(sin(dot(co.xy,vec2(12.9898, 78.233))) * 43758.5453123);
+}
+ 
 float noise(float x) {
     float i = floor(x);
     float f = fract(x);
@@ -436,7 +440,8 @@ bool intersectCappedCone( in vec3  origin, in vec3  dir,
     if( m1<0.0 ) { 
         if( dot2(oa*m3-dir*m1)<(ra*ra*m3*m3) ){
             t = -m1/m3;
-            t2 = info.t;
+            info.t = t;
+            info.t2 = info.t;
             info.n = -ba*inversesqrt(m0);
             return true;//vec4(-m1/m3,-ba*inversesqrt(m0)); 
         }
@@ -444,7 +449,8 @@ bool intersectCappedCone( in vec3  origin, in vec3  dir,
     else if( m2>0.0 ) { 
         if( dot2(ob*m3-dir*m2)<(rb*rb*m3*m3) ){
             t = -m2/m3;
-            t2 = info.t;
+            info.t = t;
+            info.t2 = info.t;
             info.n = ba*inversesqrt(m0);
             return true;
             //return vec4(-m2/m3, ba*inversesqrt(m0)); 
@@ -465,37 +471,23 @@ bool intersectCappedCone( in vec3  origin, in vec3  dir,
     if( h<0.0 ) return false;//vec4(-1.0);
  
     t = (-k1-sqrt(h))/k2;
-    t2 = (-k1+sqrt(h))/k2;
      
     float y = m1 + t*m3;
-    float y2 = m1 + t2*m3;
-    bool found = false;
     if( y>0.0 && y<m0) 
     {
         
-            info.t = t;
-            //info.t2 = t2;
             info.n = normalize(m0*(m0*(oa+t*dir)+rr*ba*ra)-ba*hy*y);
-            info.p = origin+dir*t;
-            found = (t>=0.0 && t<info.t);  
-            if(found)info.t = t;
-         
+            //info.p = origin+dir*t; 
+            info.t = t;
+            return true; 
         //info.t2 = t2;     
         //info.n = normalize(m0*(m0*(oa+t*dir)+rr*ba*ra)-ba*hy*y);
         //info.p = origin+dir*t;
         
         //return vec4(t, normalize(m0*(m0*(oa+t*rd)+rr*ba*ra)-ba*hy*y));
-    }
-     
-    //if(y2>0.0 && y2<m0){
-       
-       //if(t2>0.0 && t2<info.t2){
-           //info.t2 = t2;
-      //     flag2 = true;
-       //} 
-    //} 
+    } 
     
-    return found;//vec4(-1.0);
+    return false;//vec4(-1.0);
 }
  
 float sdSphere(vec3 p, float s){
@@ -703,7 +695,7 @@ vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo
     vec4 albedo = vec4(0.8);
     vec4 specular = vec4(vec3(0.6),1);
     vec4 transmittance = vec4(vec3(0.9),1);
-    if(i.type!= 0 && i.type!= 1 && i.type != 2 && i.type != 5 && i.type!= 6){
+    if(i.type!= 0 && i.type!= 1 && i.type != 2 && i.type != 5 && i.type!= 6 && i.type!=7){
         origin = i.p;// + i.n * 0.01;
         
         dir = reflect(dir, i.n);
@@ -788,10 +780,10 @@ float sphDensity( vec3  origin, vec3  dir,   // ray origin, ray direction
     // normalize the problem to the canonical sphere
     float ndbuffer = dbuffer / sr;
     hitinfo tinfo;
-    tinfo.t = info.t;
-    //tinfo.t = MAX_SCENE_BOUNDS;
-    //tinfo.t2 = MAX_SCENE_BOUNDS; 
-    bool co = intersectCappedCone(origin,dir, lightPos.xyz, lightPos.xyz-vec3(0,-4,0),0.01,2,tinfo); 
+    tinfo.t = MAX_SCENE_BOUNDS;
+    //tinfo.t2 = MAX_SCENE_BOUNDS;
+     
+    bool co = intersectCappedCone(origin,dir, lightPos.xyz, lightPos.xyz-vec3(0,-4,0),0.01,5,tinfo); 
     
     /*vec3  rc = (origin - sc)/sr;
     
@@ -811,13 +803,20 @@ float sphDensity( vec3  origin, vec3  dir,   // ray origin, ray direction
     float t2 = -b + h;*/
  
     if(co==false)return 0.0;
-    info.type = 7;
+    
+    if(tinfo.t>0.0 && tinfo.t<info.t){
+        info.t = tinfo.t;
+        info.p = origin+dir*info.t;
+        info.n = tinfo.n;
+        info.type = 7;
+        return 1.0;
+    } 
+    //info.t = tinfo.t;
+    //info.t2 = tinfo.t2;
      
-    info.t = tinfo.t;
-    info.t2 = tinfo.t2; 
- 
-    float t1 = info.t;
-    float t2 = info.t2;
+    return 0.0; 
+    float t1 = tinfo.t;
+    float t2 = tinfo.t2;
     vec3 rc = (origin-sc)/sr;
     float b = dot(dir,rc);
     float c = dot(rc,rc)-1.0;
@@ -836,7 +835,71 @@ float sphDensity( vec3  origin, vec3  dir,   // ray origin, ray direction
     return res;
 }
  
-vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowTraced, inout vec4 shadowRes, in float ambOcclusion){
+float absorptionTau = 0.003;
+float scatteringTau = 0.03;
+ 
+vec3 absorptionTransmittance(float dist) {
+ 
+    //float absorptionTau = 0.03;
+    vec3 absorptionColor = vec3(0.5);
+    //float scatteringTau = 0.3;
+    return absorptionColor*exp(-dist*(absorptionTau+scatteringTau));
+}
+ 
+ 
+float phaseFunctionHenyeyGreenstein(vec3 inDir, vec3 outDir) {
+    float anisotropy = 0.9;
+    float cosAngle = dot(inDir, outDir) / (length(inDir)*length(outDir));
+    float nom = 1 - anisotropy*anisotropy;
+    float denom = 4 * PI * pow(1 + anisotropy*anisotropy - 2*anisotropy*cosAngle, 1.5);
+    return nom/denom;
+}
+ 
+ 
+vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar){
+   
+    vec3 result = vec3(0);
+    
+    if(info.type==3)info.p = lightPos.xyz+dir*30;//MAX_SCENE_BOUNDS;
+    
+    vec3 camToFrag = info.p-origin;
+    float scatteringZFar = MAX_SCENE_BOUNDS;
+    //float absorptionTau = 0.03;
+    vec3 absorptionColor = vec3(0.05);
+    //float scatteringTau = 0.3;
+    int scatteringSamples = 70;
+    vec3 scatteringColor = vec3(1);
+    if(length(camToFrag)>scatteringZFar){
+        camToFrag = normalize(origin-info.p);
+    }
+    vec3 deltaStep = camToFrag/(scatteringSamples+1);
+    vec3 FragToCamNorm = normalize(origin-info.p);
+    vec3 x = origin;
+    
+    // Randomize the sampling points along the ray to trade flickering
+    // for plain noise
+    float rand = random(info.p.xy+info.p.z);
+    x += (deltaStep*rand);
+ 
+     
+    //float shadowsVar = 0.0;
+    float lightIntensity = 700;
+    vec3 lightColor = vec3(0.99,0.95,0.5);
+    for(int i = 0; i < scatteringSamples; ++i) {
+        float visibility = 1.0 - shadowsVar;
+        vec3 lightToX = x - lightPos.xyz;
+        float lightDist = length(lightToX);
+        float omega = 4 * PI * lightDist * lightDist;
+        vec3 Lin = absorptionTransmittance(lightDist) * visibility * lightColor * lightIntensity / omega;
+        vec3 Li = Lin * scatteringTau * scatteringColor * phaseFunctionHenyeyGreenstein(normalize(lightToX), FragToCamNorm);
+        result += Li * absorptionTransmittance(distance(x, origin)) * length(deltaStep);
+        x += deltaStep;
+    }
+ 
+    return vec4(result,0);
+}
+ 
+vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowTraced, inout vec4 shadowRes, inout vec4 volumeColor){
     bool hitAnything;// = false;
     bool lightTraced = false;
     vec4 pColor = vec4(0);
@@ -856,11 +919,11 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
    
     vec3 startPos = origin;
     vec3 startDir = direction;
-   
+    bool volumeBool = true; 
     info.t = MAX_SCENE_BOUNDS; 
     for(int i=0;i<8;i++){
         info.t = MAX_SCENE_BOUNDS;
-        info.t2 = MAX_SCENE_BOUNDS;
+        //info.t2 = MAX_SCENE_BOUNDS;
         //info.e = rayEnergy;
          
         vec4 color = trace(origin, direction, hitAnything, info);
@@ -899,9 +962,17 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
               shadowTraced = true;
               shadowRes = vec4(0);
               shadowsVar = pes;
+              //volumeBool = true;
            } 
+           
+           //volumeColor += rayMarchedLighting(origin,direction, info, 0);
+           
         }
-   
+        
+        if(volumeBool){ 
+            volumeColor += rayMarchedLighting(startPos,startDir, info,shadowsVar);
+            //volumeBool = false;
+        } 
         info.lighting = BlinnPhong(origin, direction, info.n, info.p, vec3(100), lightPos.xyz);
    
         vec4 pE = info.e; 
@@ -909,9 +980,11 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         //origin = origin + direction*0.01;
         vec4 shadeColor = pE*shade(origin,direction,hitAnything, info);
         //vec4 lightingColor = pow(info.lighting*(1-shadowsVar),vec4(1./2.2));
-        
+         
         if(info.type!=6)info.color += shadeColor; 
         //info.color *= pow(info.lighting, vec4(1./2.2)); 
+         
+        //if(info.type!=6)info.color += volumeColor; 
          
         //if(info.type!=6)info.color = mix(info.color, (1-shadowsVar)*info.color*pow(info.lighting,vec4(1./2.2)),0.9);
         //if(info.type!=6)info.color = (1-shadowsVar)*info.color*info.lighting;
@@ -919,16 +992,14 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         else if(info.type!=6 && info.type!=3)info.color *= (info.lighting*(shadowsVar)); 
         //else if(info.type!=6 && info.type!=3)info.color*= mix(info.lighting,vec4(vec3(shadowsVar),1),0.4); 
         
-        float h = sphDensity(origin,direction, lightPos.xyz, 3, MAX_SCENE_BOUNDS, info);
-        if(h>0.0)info.color = mix(info.color,vec4(0.99,0.94,0.5,1),h); 
          
+        //float h = sphDensity(startPos,startDir, lightPos.xyz, 3, MAX_SCENE_BOUNDS, info);
+        //if(h>0.0)info.color = mix(info.color,vec4(0.99,0.94,0.5,1),h);  
         //if(info.type != 1 && info.type != 4)break; 
         if(!vany(info.e.xyz))break; 
         
     }
- 
-    //if(lightTraced)return info.color*accLighting;
-    //info.color = mix(info.color, info.color*pow(info.lighting*(1-shadowsVar),vec4(1./2.2)),0.9); 
+    
     return info.color;
 }
  
@@ -995,6 +1066,10 @@ vec4 volumetricLighting(vec3 origin, vec3 direction){
     return vec4(accumulateScattering, 1);
 }
  
+ 
+ 
+ 
+ 
 layout (local_size_x = 32, local_size_y = 32) in;
  
 //type: 0: plane,1: cube, 2: sphere, 3: sky, 4: mirror, 5: triangles, 6: light
@@ -1039,7 +1114,8 @@ void main(void) {
     vec3 oEye = eye;
     //reflection
     info.refl = 0;
-    finalColor = castRay(origin, direction, info, shadowTraced, shadowRes, ambientOcclusion);
+    vec4 volumeColor = vec4(0);
+    finalColor = castRay(origin, direction, info, shadowTraced, shadowRes, volumeColor);
  
     if(shadowTraced)finalColor = mix(shadowRes, finalColor, 0.5); 
     hitinfo info2;
@@ -1048,7 +1124,8 @@ void main(void) {
     shadowRes = vec4(0);
     shadowTraced = false;
     info2.refrType = 0;
-    vec4 refractionColor = castRay(origin, direction, info2, shadowTraced, shadowRes, ambientOcclusion); 
+    volumeColor = vec4(0);
+    vec4 refractionColor = castRay(origin, direction, info2, shadowTraced, shadowRes, volumeColor); 
    
     vec3 absorbColor = vec3(1)-vec3(0.01,0.01,0.8+info2.extraPath*0.02); 
     //refractionColor.xyz *= exp(-absorbColor*(length(info2.exitPoint-info2.entryPoint))); 
@@ -1061,5 +1138,7 @@ void main(void) {
     //if(h>0.0)finalColor = mix(finalColor,vec4(0.99,0.94,0.5,1),h); 
     //finalColor = mix(finalColor, info2.lighting,0.5); 
     //finalColor = pow(finalColor, vec4(1./2.2)); 
+    
+    finalColor += volumeColor;
     imageStore(framebuffer, pix, finalColor);
 }
