@@ -1,0 +1,52 @@
+/**
+ * Henyey- Greenstein phase function
+ */
+float phaseFunctionHenyeyGreenstein(vec3 inDir, vec3 outDir) {
+    float cosAngle = dot(inDir, outDir) / (length(inDir)*length(outDir));
+    float nom = 1 - anisotropy*anisotropy;
+    float denom = 4 * M_PI * pow(1 + anisotropy*anisotropy - 2*anisotropy*cosAngle, 1.5);
+    return nom/denom;
+}
+
+
+/**
+ * Rayleigh scattering phase function
+ */
+float phaseFunctionRayleigh(vec3 inDir, vec3 outDir) {
+    float cosAngle = dot(inDir, outDir) / (length(inDir) * length(outDir));
+    float nom = 3.0*(1.0 + cosAngle*cosAngle);
+    float denom = 16.0 * M_PI;
+    return nom/denom;
+}
+
+
+/**
+ * Mie-Hazy phase function
+ */
+float phaseFunctionMieHazy(vec3 inDir, vec3 outDir) {
+    float cosAngle = dot(inDir, outDir) / (length(inDir) * length(outDir));
+    float x = (1.0 + cosAngle)/2.0;
+    float x2 = x*x;
+    float x4 = x2*x2;
+    float x8 = x4*x4;
+    float nom = 0.5 + 4.5*x8;
+    float factor = 1.0/(4.0 * M_PI);
+    return nom*factor;
+}
+
+
+/**
+ * Mie-Murky phase function
+ */
+float phaseFunctionMieMurky(vec3 inDir, vec3 outDir) {
+    float cosAngle = dot(inDir, outDir) / (length(inDir) * length(outDir));
+    float x = (1.0 + cosAngle)/2.0;
+    float x2 = x*x;
+    float x4 = x2*x2;
+    float x8 = x4*x4;
+    float x16 = x8*x8;
+    float x32 = x16*x16;
+    float nom = 0.5 + 16.5*x32;
+    float factor = 1.0/(4.0 * M_PI);
+    return nom*factor;
+}
