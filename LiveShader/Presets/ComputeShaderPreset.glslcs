@@ -863,8 +863,13 @@ float GetAngle(vec3 v1, vec3 v2){
 vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar){
    
     vec3 result = vec3(0);
-    
-    if(info.type==3)info.p = lightPos.xyz+dir*30;
+   
+    float distLimit = 10; 
+    if(info.type==3){
+        float reverseTanAngle = 1/tan((PI/180)*GetAngle(lightPos.xyz-origin,dir));
+        vec3 eDir = (lightPos.xyz-origin)-(dir*length(lightPos.xyz-origin)*reverseTanAngle);
+        info.p = lightPos.xyz-eDir;
+    }
     
     vec3 camToFrag = info.p-origin;
     float scatteringZFar = MAX_SCENE_BOUNDS;
@@ -896,7 +901,8 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
         if(angle2>20 || angle2<0)visibility = 0.0;
         
         float lightDist = length(lightToX);
-        if(lightDist>10.0)visibility = 0.0;
+        if(lightDist>distLimit)visibility = 0.0;
+        
         float omega = 4 * PI * lightDist * lightDist;
         vec3 Lin = absorptionTransmittance(lightDist) * visibility * lightColor * lightIntensity / omega;
         vec3 Li = Lin * scatteringTau * scatteringColor * phaseFunctionHenyeyGreenstein(normalize(lightToX), FragToCamNorm);
@@ -970,7 +976,7 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
               shadowTraced = true;
               shadowRes = vec4(0);
               shadowsVar = pes;
-              //volumeBool = true;
+              //volumeBool = false;
            } 
            
            //volumeColor += rayMarchedLighting(origin,direction, info, 0);
@@ -978,14 +984,14 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         }
         
         if(volumeBool){ 
-            volumeColor += rayMarchedLighting(origin,direction, info, shadowsVar);
+            //volumeColor += rayMarchedLighting(startPos,startDir, info, shadowsVar);
             volumeBool = false;
         }
         else{
-           volumeColor += rayMarchedLighting(origin,direction,info,0.0);
+           volumeColor += rayMarchedLighting(startPos,startDir,info,0.0);
            volumeBool = true; 
         } 
-        info.lighting = BlinnPhong(origin, direction, info.n, info.p, vec3(100), lightPos.xyz);
+        info.lighting = BlinnPhong(startPos, startDir, info.n, info.p, vec3(100), lightPos.xyz);
    
         vec4 pE = info.e; 
         //finalColor = shade(origin,direction, hitAnything,info);
