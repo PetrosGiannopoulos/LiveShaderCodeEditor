@@ -49,6 +49,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="screenBlur.fs" />
+    <None Include="screenBlur.vs" />
     <None Include="screenShader.fs" />
     <None Include="screenShader.vs" />
     <None Include="textShader.fs" />

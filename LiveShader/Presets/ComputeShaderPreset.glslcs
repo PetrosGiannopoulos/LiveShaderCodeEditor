@@ -873,7 +873,7 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
     
     vec3 camToFrag = info.p-origin;
     float scatteringZFar = MAX_SCENE_BOUNDS;
-    int scatteringSamples = 30;
+    int scatteringSamples = 70;
     vec3 scatteringColor = vec3(1);
     if(length(camToFrag)>scatteringZFar){
         camToFrag = normalize(origin-info.p);
@@ -890,7 +890,7 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
      
      
     //float shadowsVar = 0.0;
-    float lightIntensity = 70000;
+    float lightIntensity = 7000;
     vec3 lightColor = vec3(0.99,0.95,0.5);
     for(int i = 0; i < scatteringSamples; ++i) {
         float visibility = 1.0 - shadowsVar;
@@ -909,7 +909,8 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
         result += Li * absorptionTransmittance(distance(x,origin)) * length(deltaStep);
         x += deltaStep;
     }
- 
+    
+     
     return vec4(result,0);
 }
  
@@ -988,10 +989,10 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
             volumeBool = false;
         }
         else{
-           volumeColor += rayMarchedLighting(startPos,startDir,info,0.0);
+           volumeColor += rayMarchedLighting(origin,direction,info,0.0);
            volumeBool = true; 
         } 
-        info.lighting = BlinnPhong(startPos, startDir, info.n, info.p, vec3(100), lightPos.xyz);
+        info.lighting = BlinnPhong(origin, direction, info.n, info.p, vec3(10), lightPos.xyz);
    
         vec4 pE = info.e; 
         //finalColor = shade(origin,direction, hitAnything,info);
@@ -1010,8 +1011,8 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         else if(info.type!=6 && info.type!=3)info.color *= (info.lighting*(shadowsVar)); 
         //else if(info.type!=6 && info.type!=3)info.color*= mix(info.lighting,vec4(vec3(shadowsVar),1),0.4); 
         if(volumeBool==false){
-            volumeColor *= info.lighting;
-           
+            //volumeColor *= info.lighting;
+            //volumeColor = mix(volumeColor, info.lighting,0.5); 
             //volumeBool = false; 
         } 
          
@@ -1046,52 +1047,7 @@ float GetDitherValue(ivec2 pix)
     int y = int(pix.y % 4);
     return DitherMatrix[x + (y * 4)];
 }
- 
- 
- 
-vec4 volumetricLighting(vec3 origin, vec3 direction){
- 
-    vec3 lightDirection = vec3(0,-1,0);
- 
-    float rayLength = MAX_SCENE_BOUNDS;
-    float stepLength = rayLength/NUM_SAMPLES;
-    vec3 Step = direction*stepLength;
- 
-    vec3 currentPosition = origin;
-    vec3 accumulateScattering = vec3(0);
-    vec3 lightColor = vec3(0.7);
   
-    for(int i=0;i<NUM_SAMPLES;i++){
-    
-        //lightDirection = -normalize(lightPos.xyz-currentPosition);
- 
-        vec4 LightProjection = vec4(currentPosition, 1)*lightProjection;
-        LightProjection.y = -LightProjection.y;
-        LightProjection.xyz /= LightProjection.w;
- 
-        vec2 shadowCoordinates = LightProjection.xy* 0.5f + 0.5f;
- 
-        vec3 coords = currentPosition-lightPos.xyz;
-        float ShadowValue = texture(shadowMap,shadowCoordinates).r;//length(coords);//texture(shadowMap, coords).r;
- 
-        if (ShadowValue > LightProjection.z)
-        {
-            accumulateScattering += ComputeScattering(dot(lightDirection, direction)) * lightColor;
-        }
- 
-        currentPosition += Step *ditherValue;
- 
-    }
- 
-    accumulateScattering /= NUM_SAMPLES;
- 
-    return vec4(accumulateScattering, 1);
-}
- 
- 
- 
- 
- 
 layout (local_size_x = 32, local_size_y = 32) in;
  
 //type: 0: plane,1: cube, 2: sphere, 3: sky, 4: mirror, 5: triangles, 6: light
@@ -1130,8 +1086,6 @@ void main(void) {
     vec4 blinnPhongLighting;
     vec4 accLighting = vec4(0);
  
-    //vec4 volumeColor = volumetricLighting(origin, direction);
- 
     bool lightTraced = false;
     vec3 oEye = eye;
     //reflection
@@ -1161,8 +1115,12 @@ void main(void) {
     //finalColor = mix(finalColor, info2.lighting,0.5); 
     //finalColor = pow(finalColor, vec4(1./2.2)); 
     
-    //finalColor += volumeColor;
     finalColor = mix(finalColor, volumeColor, 0.5);
+    finalColor.w = 1;
+    if(volumeColor.xyz != vec3(0)){
+        
+        finalColor.w = 0;
+    }
     //finalColor = pow(finalColor, vec4(1./2.2));
     imageStore(framebuffer, pix, finalColor);
 }

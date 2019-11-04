@@ -42,6 +42,7 @@ public:
 	float lastFrame = 0.0f;
 
 	Shader screenShader;
+	Shader blurShader;
 
 	Text codeEditor;
 
@@ -62,6 +63,8 @@ public:
 	unsigned int planeTexture;
 	unsigned int depthTexture;
 	unsigned int ssaoColorBufferBlur;
+	unsigned int ssaoColorBuffer;
+	unsigned int ssaoBlurFBO;
 
 	bool displayMode = false;
 
@@ -141,6 +144,23 @@ public:
 		computeShader.setInt("shadowMap", 3);
 
 		codeEditor.readLines(computeShader.getLines());
+
+		blurShader = Shader("screenBlur.vs","screenBlur.fs");
+		blurShader.use();
+		blurShader.setInt("ssaoInput",0);
+
+		// SSAO color buffer blur
+		glGenFramebuffers(1, &ssaoBlurFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+		glGenTextures(1, &ssaoColorBufferBlur);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mode->width, mode->height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "SSAO Blur Framebuffer not complete!" << std::endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		camera = Camera(glm::vec3(10.0f, 8.0f, 20.0f));
 		camera.Pitch -= 15;
@@ -238,6 +258,17 @@ public:
 		if (displayMode) {
 			projection = glm::perspective(glm::radians(camera.Zoom), (float)(mode->width*0.5) / (float)mode->height, 0.1f, 1000.0f);
 			computeShaderTrace(projection*camera.GetViewMatrix());
+
+			//bilateral blur
+			//glDisable(GL_DEPTH_TEST);
+			glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+			glClear(GL_COLOR_BUFFER_BIT);
+			blurShader.use();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, computeShaderTexture);
+			renderScreenQuad();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//glEnable(GL_DEPTH_TEST);
 		}
 
 		screenShader.use();
@@ -257,13 +288,13 @@ public:
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, codeScreenTexture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, computeShaderTexture);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 		renderScreenQuad();
-		glBindVertexArray(screenQuadVAO);
+		//glBindVertexArray(screenQuadVAO);
 		
 		
 		//glDisable(GL_DEPTH_TEST);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//draw Code
 		if(displayMode == false)codeEditor.renderCode(mode->width,mode->height);
@@ -297,7 +328,7 @@ public:
 		computeShader.setVec3("ray10", camera.GetEyeRay(1, -1, invProjectionView));
 		computeShader.setVec3("ray11", camera.GetEyeRay(1, 1, invProjectionView));
 
-		lightPos.y = 10 * (sin(time)*0.5 + 0.5);
+		lightPos.y = 2;// 10 * (sin(time)*0.5 + 0.5);
 		//lightPos.z = -15;
 		computeShader.setVec4("sphere", glm::vec4(5,20,20,1));
 		computeShader.setVec4("lightPos", glm::vec4(lightPos,1));
