@@ -864,7 +864,7 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
    
     vec3 result = vec3(0);
    
-    float distLimit = 10; 
+    float distLimit = 20; 
     if(info.type==3){
         float reverseTanAngle = 1/tan((PI/180)*GetAngle(lightPos.xyz-origin,dir));
         vec3 eDir = (lightPos.xyz-origin)-(dir*length(lightPos.xyz-origin)*reverseTanAngle);
@@ -896,10 +896,12 @@ vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar
         float visibility = 1.0 - shadowsVar;
         vec3 lightToX = x - lightPos.xyz;
         float angle = abs(GetAngle(lightToX,vec3(0,1,0)));
-        float angle2 = abs(GetAngle(lightToX, vec3(1,0,0)));
+        float angle2 = abs(GetAngle(lightToX, vec3(cos(time),sin(time)*cos(time),sin(time))));
         if(angle>135 || angle<45)visibility = 0.0;
-        if(angle2>20 || angle2<0)visibility = 0.0;
+        if(angle2>22.5 || angle2<0)visibility = 0.0;
         
+        if(mod(angle2,20.0)<1)visibility = 0.0;
+        if(mod(angle, 10.0)<1)visibility = 0.0;  
         float lightDist = length(lightToX);
         if(lightDist>distLimit)visibility = 0.0;
         
