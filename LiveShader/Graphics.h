@@ -72,6 +72,10 @@ public:
 	glm::vec2 maxSelectedArea;
 	glm::vec2 pressCoords;
 
+	bool isPressSelected = false;
+	bool isDragSelected = false;
+	bool isSelected = false;
+
 	float time = 0;
 
 	Models model;
@@ -276,7 +280,8 @@ public:
 		screenShader.setFloat("width", mode->width);
 		screenShader.setFloat("height", mode->height);
 
-		screenShader.setBool("isSelected", true);
+		screenShader.setBool("isSelected",isSelected);
+		
 		screenShader.setVec2("minSelectedArea",minSelectedArea);
 		screenShader.setVec2("maxSelectedArea",maxSelectedArea);
 
@@ -412,9 +417,16 @@ public:
 		int newLeftMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 		if (newLeftMouseButtonState == GLFW_RELEASE && oldLeftMouseButtonState == GLFW_PRESS) {
 			//cout << "mouse pressed" << endl;
+
 			double x, y;
 
 			glfwGetCursorPos(window, &x, &y);
+			isPressSelected = false;
+			if (pressCoords.x == x && pressCoords.y == (y + 25)) {
+				
+				isDragSelected = false;
+				isSelected = false;
+			}
 			
 			if (codeEditor.searchingLine == false) {
 				
@@ -432,26 +444,15 @@ public:
 			}
 		}
 
-		if (newLeftMouseButtonState == GLFW_PRESS) {
+		if (newLeftMouseButtonState == GLFW_PRESS && oldLeftMouseButtonState != GLFW_PRESS) {
 			double x, y;
+			
 
 			glfwGetCursorPos(window, &x, &y);
+			isPressSelected = true;
 			
 			y = y + 25;
-			if (pressCoords.x < x) {
-				minSelectedArea.x = pressCoords.x;
-				minSelectedArea.y = pressCoords.y;
-				maxSelectedArea.x = x;
-				maxSelectedArea.y = y;
-			}
-			else {
-				
-				minSelectedArea.x = x;
-				minSelectedArea.y = y;
-				maxSelectedArea.x = pressCoords.x;
-				maxSelectedArea.y = pressCoords.y;
-			}
-
+			
 			pressCoords.x = x;
 			pressCoords.y = y;
 		}
@@ -490,6 +491,31 @@ public:
 			lastY = ypos;
 			if (displayMode) camera.ProcessMouseMovement(xoffset, yoffset);
 
+			if (isPressSelected) {
+				isSelected = true;
+				isDragSelected = true;
+
+				double x, y;
+				glfwGetCursorPos(window, &x, &y);
+				y = y + 25;
+				if (x < pressCoords.x) {
+					minSelectedArea.x = x;
+					maxSelectedArea.x = pressCoords.x;
+				}
+				else {
+					minSelectedArea.x = pressCoords.x;
+					maxSelectedArea.x = x;
+				}
+
+				if (y > pressCoords.y) {
+					minSelectedArea.y = mode->height-y;
+					maxSelectedArea.y = mode->height - pressCoords.y;
+				}
+				else {
+					minSelectedArea.y = mode->height - pressCoords.y;
+					maxSelectedArea.y = mode->height - y;
+				}
+			}
 		
 	}
 
@@ -582,6 +608,7 @@ public:
 		//cout << keycode << endl;
 
 		if (keycode == 96 && displayMode == false) {
+			return;
 			codeEditor.updateFile("Presets/ComputeShaderPreset.glslcs");
 			computeShader = CShader("Presets/ComputeShaderPreset.glslcs");
 			computeShaderTexture = computeShader.createFrameBufferTexture();

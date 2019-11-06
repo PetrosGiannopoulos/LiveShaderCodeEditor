@@ -848,7 +848,7 @@ vec3 absorptionTransmittance(float dist) {
  
  
 float phaseFunctionHenyeyGreenstein(vec3 inDir, vec3 outDir) {
-    float anisotropy = 0;
+    float anisotropy = 0.25;
     float cosAngle = dot(inDir, outDir) / (length(inDir)*length(outDir));
     float nom = 1 - anisotropy*anisotropy;
     float denom = 4 * PI * pow(1 + anisotropy*anisotropy - 2*anisotropy*cosAngle, 1.5);
