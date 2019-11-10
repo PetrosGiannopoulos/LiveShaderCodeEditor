@@ -1,4 +1,6 @@
-#version 330 core
+#version 420 core
+#define MAX_BOXES 100
+
 out vec4 FragColor;
 
 in vec2 TexCoords;
@@ -15,6 +17,18 @@ uniform vec2 minSelectedArea;
 uniform vec2 maxSelectedArea;
 
 uniform bool isSelected;
+
+struct SelectionBox{
+	vec2 minPoint;
+	vec2 maxPoint;
+};
+
+layout (std140, binding = 2) uniform SelectionBoxes{
+	SelectionBox selectionBoxes[MAX_BOXES];
+};
+
+uniform float numBoxes;
+uniform float lineHeight;
 
 void main()
 {
@@ -64,8 +78,15 @@ void main()
 	//selected area
 	//FragColor *= vec4(0.3,0.3,0.74,1);
 	if(isSelected){
-		if((gl_FragCoord.x>minSelectedArea.x && gl_FragCoord.x<maxSelectedArea.x) && (gl_FragCoord.y>minSelectedArea.y && gl_FragCoord.y<maxSelectedArea.y)){
+		if((gl_FragCoord.x>minSelectedArea.x && gl_FragCoord.x<maxSelectedArea.x) && (gl_FragCoord.y<minSelectedArea.y && gl_FragCoord.y>maxSelectedArea.y)){
 			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
 		}
 	}
+	
+	int portion = int((height-100+lineHeight-gl_FragCoord.y)/lineHeight);
+
+	if((gl_FragCoord.x>selectionBoxes[portion].minPoint.x && gl_FragCoord.x<selectionBoxes[portion].maxPoint.x) && (gl_FragCoord.y<selectionBoxes[portion].minPoint.y && gl_FragCoord.y>selectionBoxes[portion].maxPoint.y)){
+			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
+	}
+
 } 

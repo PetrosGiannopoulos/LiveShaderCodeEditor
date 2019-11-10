@@ -13,6 +13,7 @@ class Text {
 public:
 
 	vector<string> codeText;
+	vector<vector<bool>> selectedCharacters;
 
 	Shader textShader, *screenShader;
 
@@ -77,6 +78,14 @@ public:
 	void readLines(vector<string> lines) {
 		codeText.clear();
 		codeText = lines;
+		selectedCharacters.clear();
+		int N = codeText.size();
+		for (int i = 0; i < N;i++) {
+			vector<bool> selectedChars;
+			int L = lines[i].size();
+			for (int l = 0; l < L; l++) { selectedChars.push_back(false); }
+			selectedCharacters.push_back(selectedChars);
+		}
 	}
 
 	glm::vec2 initCaretPos(int height) {
@@ -505,6 +514,89 @@ public:
 		caretPosI = glm::vec2(minIX,minIY);
 
 		return glm::vec2(minX,minY);
+
+
+	}
+
+	glm::vec2 getScreenToTextPoint(glm::vec2 pos, int width, int height) {
+
+		float minDistX = FLT_MAX;
+		float minDistY = FLT_MAX;
+		float minDist = FLT_MAX;
+		float minX = FLT_MAX;
+		float minY = FLT_MAX;
+		float scale = 1;
+
+		float minIX = -1;
+		float minIY = -1;
+
+		float x, y;
+
+		x = startX;
+
+		for (int i = 0; i < codeText.size(); i++) {
+
+			string text = codeText[i];
+
+			y = height - 100 - (i + startY)*(rows + fontSize*0.5);
+
+			// Iterate through all characters
+			std::string::const_iterator c;
+			int counter = 0;
+			for (c = text.begin(); c != text.end(); c++) {
+
+
+				Character ch = Characters[*c];
+
+				GLfloat xpos = x + ch.Bearing.x * scale;
+				GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+				GLfloat w = ch.Size.x * scale;
+				GLfloat h = ch.Size.y * scale;
+
+				float diffY = abs(y + (rows + fontSize*0.5)*0.3 - pos.y);
+
+				if (diffY < minDistY) {
+					minDistY = diffY;
+					minY = y + (rows + fontSize*0.5)*0.3;
+					minIY = i;
+				}
+
+				x += (ch.Advance >> 6) * scale;
+				counter++;
+			}
+
+		}
+
+		x = startX;
+		string text = codeText[minIY];
+		std::string::const_iterator c;
+		int counter = 0;
+		for (c = text.begin(); c != text.end(); c++) {
+			Character ch = Characters[*c];
+
+			GLfloat xpos = x + ch.Bearing.x * scale;
+			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+			GLfloat w = ch.Size.x * scale;
+			GLfloat h = ch.Size.y * scale;
+
+			float diffX = abs(xpos - pos.x);
+
+			if (diffX < minDistX) {
+				minDistX = diffX;
+				minX = x;// xpos;
+				minIX = counter;
+			}
+
+			x += (ch.Advance >> 6) * scale;
+			counter++;
+
+		}
+
+		//caretPosI = glm::vec2(minIX, minIY);
+
+		return glm::vec2(minX,minIY+startY);
 
 
 	}

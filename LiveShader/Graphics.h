@@ -81,6 +81,15 @@ public:
 	Models model;
 	unsigned int ssbo_sphere;
 
+	unsigned int uboSelectionBoxBlock;
+
+	struct SelectionBox{
+		glm::vec2 minPoint;
+		glm::vec2 maxPoint;
+	};
+
+	vector<SelectionBox> selectionBoxData;
+
 public:
 
 
@@ -196,6 +205,37 @@ public:
 		
 		//cout << model.ssbo_triangles.size() << endl;
 		//initSSBOData();
+
+		int numBoxes = (mode->height - 100) / (codeEditor.rows + codeEditor.fontSize*0.5);
+		
+		cout << numBoxes << endl;
+		glGenBuffers(1, &uboSelectionBoxBlock);
+		glBindBuffer(GL_UNIFORM_BUFFER, uboSelectionBoxBlock);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(SelectionBox)*(numBoxes), NULL, GL_STATIC_DRAW); // allocate 150 bytes of memory
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		unsigned int boxes_index = glGetUniformBlockIndex(screenShader.ID, "SelectionBoxes");
+		glUniformBlockBinding(screenShader.ID, boxes_index, 2);
+
+		for (int i = 0; i < numBoxes; i++) {
+			SelectionBox selectionBox = SelectionBox();
+			selectionBox.minPoint = glm::vec2(100, mode->height - (100- (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5)*i));
+			selectionBox.maxPoint = glm::vec2(140, mode->height - (100- (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5)*i));
+			selectionBoxData.push_back(selectionBox);
+		}
+	}
+
+	void updateSelectionBoxes(const Shader &shader) {
+		glBindBufferBase(GL_UNIFORM_BUFFER, 2, uboSelectionBoxBlock);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboSelectionBoxBlock);
+		int numBoxes = (mode->height - 100) / (codeEditor.rows + codeEditor.fontSize*0.5);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(SelectionBox)*(numBoxes), selectionBoxData.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		shader.setFloat("numBox", numBoxes);
+
+		
 	}
 
 	void initSSBOData() {
@@ -279,6 +319,12 @@ public:
 
 		screenShader.setFloat("width", mode->width);
 		screenShader.setFloat("height", mode->height);
+
+		screenShader.setFloat("lineHeight", (codeEditor.rows + codeEditor.fontSize*0.5));
+
+		//selection
+		updateSelectionBoxes(screenShader);
+
 
 		screenShader.setBool("isSelected",isSelected);
 		
@@ -455,6 +501,8 @@ public:
 			
 			pressCoords.x = x;
 			pressCoords.y = y;
+
+			
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;
@@ -507,7 +555,7 @@ public:
 					maxSelectedArea.x = x;
 				}
 
-				if (y > pressCoords.y) {
+				if (y < pressCoords.y) {
 					minSelectedArea.y = mode->height-y;
 					maxSelectedArea.y = mode->height - pressCoords.y;
 				}
@@ -515,6 +563,19 @@ public:
 					minSelectedArea.y = mode->height - pressCoords.y;
 					maxSelectedArea.y = mode->height - y;
 				}
+
+				glm::vec2 maxPoint = codeEditor.getScreenToTextPoint(maxSelectedArea, mode->width, mode->height);
+				glm::vec2 minPoint = codeEditor.getScreenToTextPoint(minSelectedArea,mode->width,mode->height);
+				
+
+				minSelectedArea.y = mode->height - 100 - (minPoint.y-1)*(codeEditor.rows + codeEditor.fontSize*0.5);
+				minSelectedArea.x = minPoint.x;
+
+				maxSelectedArea.y = mode->height - 100 - (maxPoint.y+1)*(codeEditor.rows + codeEditor.fontSize*0.5);
+				maxSelectedArea.x = maxPoint.x;
+
+
+				caretPos = maxSelectedArea;
 			}
 		
 	}

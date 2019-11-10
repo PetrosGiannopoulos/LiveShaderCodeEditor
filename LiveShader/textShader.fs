@@ -15,4 +15,4 @@ void main()
     color = vec4(textColor, 1.0) * sampled;
 
 	//if(length(gl_FragCoord.xy-pos)<4)color = mix(color, vec4(1,0,0,1),0.5);
-}  
+} 
