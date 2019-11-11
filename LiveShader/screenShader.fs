@@ -77,11 +77,11 @@ void main()
 
 	//selected area
 	//FragColor *= vec4(0.3,0.3,0.74,1);
-	if(isSelected){
+	/*if(isSelected){
 		if((gl_FragCoord.x>minSelectedArea.x && gl_FragCoord.x<maxSelectedArea.x) && (gl_FragCoord.y<minSelectedArea.y && gl_FragCoord.y>maxSelectedArea.y)){
 			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
 		}
-	}
+	}*/
 	
 	int portion = int((height-100+lineHeight-gl_FragCoord.y)/lineHeight);
 

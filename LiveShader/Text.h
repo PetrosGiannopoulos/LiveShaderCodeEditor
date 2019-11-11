@@ -404,6 +404,10 @@ public:
 
 	}
 
+	float getLineHeight() {
+		return (rows + fontSize*0.5);
+	}
+
 	glm::vec2 updateCaretByScroll(bool upwards) {
 
 		int scrollSpeed = 5;
@@ -518,7 +522,7 @@ public:
 
 	}
 
-	glm::vec2 getScreenToTextPoint(glm::vec2 pos, int width, int height) {
+	glm::vec4 getScreenToTextPoint(glm::vec2 pos, int width, int height) {
 
 		float minDistX = FLT_MAX;
 		float minDistY = FLT_MAX;
@@ -596,9 +600,71 @@ public:
 
 		//caretPosI = glm::vec2(minIX, minIY);
 
-		return glm::vec2(minX,minIY+startY);
+		return glm::vec4(minX,minY, minIX,minIY);
 
 
+	}
+
+	float getCharWidth(glm::vec2 pos, int moveState) {
+		
+		float scale = 1.0;
+		if (moveState == 0) {
+			//left
+			if (pos.x <= 0)return 0;
+			string currentLine = codeText[pos.y];
+			Character ch = Characters[currentLine[pos.x]];
+			return ((ch.Advance >> 6) * scale);
+
+		}
+		else if (moveState == 1) {
+			//right
+			
+			string currentLine = codeText[pos.y];
+			if (pos.x >= currentLine.length())return 0;
+			Character ch = Characters[currentLine[pos.x+1]];
+			return (ch.Advance >> 6) * scale;
+			//cout << currentLine << endl;
+		}
+
+		return 0;
+	}
+
+	float getCharX(glm::vec2 pos, int moveState) {
+		float scale = 1.0;
+
+		if (moveState == 0) {
+			//left
+			if (pos.x <= 0)return 10000;
+			string currentLine = codeText[pos.y];
+			float xSum = startX;
+			for (int i = 0; i < pos.x - 1; i++) {
+				Character ch = Characters[currentLine[i]];
+				xSum += ((ch.Advance >> 6)*scale);
+			}
+			return xSum;
+		}
+		else if (moveState == 1) {
+			//right
+			
+			string currentLine = codeText[pos.y];
+			if (pos.x >= currentLine.length()-1)return 10000;
+			float xSum = startX;
+			for (int i = 0; i < pos.x+1; i++) {
+				Character ch = Characters[currentLine[i]];
+				xSum += ((ch.Advance >> 6)*scale);
+			}
+			return xSum;
+		}
+
+		return 10000;
+	}
+
+	float getCurrentCharWidth(glm::vec2 pos) {
+
+		float scale = 1.0;
+		string currentLine = codeText[pos.y];
+		Character ch = Characters[currentLine[pos.x]];
+		return (ch.Advance >> 6) * scale;
 	}
 
 	glm::vec2 moveCaretLeft(int width) {

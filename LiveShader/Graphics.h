@@ -71,6 +71,11 @@ public:
 	glm::vec2 minSelectedArea;
 	glm::vec2 maxSelectedArea;
 	glm::vec2 pressCoords;
+	glm::vec2 prevCoords;
+
+	float totalDistanceX = 0;
+
+	float currentCharWidth;
 
 	bool isPressSelected = false;
 	bool isDragSelected = false;
@@ -220,7 +225,7 @@ public:
 		for (int i = 0; i < numBoxes; i++) {
 			SelectionBox selectionBox = SelectionBox();
 			selectionBox.minPoint = glm::vec2(100, mode->height - (100- (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5)*i));
-			selectionBox.maxPoint = glm::vec2(140, mode->height - (100- (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5)*i));
+			selectionBox.maxPoint = glm::vec2(100, mode->height - (100- (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5) + (codeEditor.rows + codeEditor.fontSize*0.5)*i));
 			selectionBoxData.push_back(selectionBox);
 		}
 	}
@@ -236,6 +241,12 @@ public:
 		shader.setFloat("numBox", numBoxes);
 
 		
+	}
+
+	int getSelectionBoxID(float y) {
+
+		float lineHeight = codeEditor.getLineHeight();
+		return (mode->height - 100 + lineHeight-y) / lineHeight;
 	}
 
 	void initSSBOData() {
@@ -502,7 +513,16 @@ public:
 			pressCoords.x = x;
 			pressCoords.y = y;
 
-			
+			glm::vec4 pPoint = codeEditor.getScreenToTextPoint(glm::vec2(x, mode->height - y), mode->width, mode->height);
+
+			currentCharWidth = codeEditor.getCurrentCharWidth(glm::vec2(pPoint.z,pPoint.w));
+			prevCoords = glm::vec2(x,y);
+			totalDistanceX = 0;
+
+			for (int i = 0; i < selectionBoxData.size(); i++) {
+				selectionBoxData[i].minPoint.x = pPoint.x;
+				selectionBoxData[i].maxPoint.x = pPoint.x;
+			}
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;
@@ -546,6 +566,12 @@ public:
 				double x, y;
 				glfwGetCursorPos(window, &x, &y);
 				y = y + 25;
+				int xmoveState = -1, ymoveState = -1;
+				if (x < prevCoords.x)xmoveState = 0;
+				else xmoveState = 1;
+
+				
+				
 				if (x < pressCoords.x) {
 					minSelectedArea.x = x;
 					maxSelectedArea.x = pressCoords.x;
@@ -558,24 +584,36 @@ public:
 				if (y < pressCoords.y) {
 					minSelectedArea.y = mode->height-y;
 					maxSelectedArea.y = mode->height - pressCoords.y;
+					ymoveState = 0;
 				}
 				else {
 					minSelectedArea.y = mode->height - pressCoords.y;
 					maxSelectedArea.y = mode->height - y;
+					ymoveState = 1;
 				}
 
-				glm::vec2 maxPoint = codeEditor.getScreenToTextPoint(maxSelectedArea, mode->width, mode->height);
-				glm::vec2 minPoint = codeEditor.getScreenToTextPoint(minSelectedArea,mode->width,mode->height);
+			
+
+				glm::vec4 currentPoint = codeEditor.getScreenToTextPoint(glm::vec2(x,mode->height-y), mode->width, mode->height);
+				glm::vec4 prevPoint = codeEditor.getScreenToTextPoint(glm::vec2(prevCoords.x,mode->height-prevCoords.y),mode->width,mode->height);
+				glm::vec4 pressPoint = codeEditor.getScreenToTextPoint(glm::vec2(pressCoords.x, mode->height - pressCoords.y), mode->width, mode->height);
 				
+				selectionBoxData[getSelectionBoxID(currentPoint.y)].minPoint.x = pressPoint.x;
+				if (xmoveState == 1) {
+					
+					if(currentPoint.x>=codeEditor.getCharX(glm::vec2(prevPoint.z, prevPoint.w), xmoveState))selectionBoxData[getSelectionBoxID(mode->height-y)].maxPoint.x += codeEditor.getCharWidth(glm::vec2(prevPoint.z, prevPoint.w), xmoveState);
+				
+				}
+				else if(xmoveState == 0){
 
-				minSelectedArea.y = mode->height - 100 - (minPoint.y-1)*(codeEditor.rows + codeEditor.fontSize*0.5);
-				minSelectedArea.x = minPoint.x;
+					if (currentPoint.x <= codeEditor.getCharX(glm::vec2(prevPoint.z, prevPoint.w), xmoveState))selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x -= codeEditor.getCharWidth(glm::vec2(prevPoint.z, prevPoint.w), xmoveState);
+					//selectionBoxData[getSelectionBoxID(maxPoint.y)].maxPoint.x -= codeEditor.getCharWidth(glm::vec2(minPoint.z, minPoint.w), xmoveState);
+					//glm::vec4 pPoint = codeEditor.getScreenToTextPoint(glm::vec2(x, mode->height-y), mode->width, mode->height);
+					//currentCharWidth -= codeEditor.getCurrentCharWidth(glm::vec2(pPoint.z, pPoint.w));
+				}
+				//caretPos = maxSelectedArea;
 
-				maxSelectedArea.y = mode->height - 100 - (maxPoint.y+1)*(codeEditor.rows + codeEditor.fontSize*0.5);
-				maxSelectedArea.x = maxPoint.x;
-
-
-				caretPos = maxSelectedArea;
+				prevCoords = glm::vec2(x, y);
 			}
 		
 	}
