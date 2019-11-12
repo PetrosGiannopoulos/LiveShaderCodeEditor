@@ -408,6 +408,21 @@ public:
 		return (rows + fontSize*0.5);
 	}
 
+	float getLineWidth(int line) {
+
+		string currentLine = codeText[line];
+		float scale = 1.0;
+		float xSum = startX;
+		int N = currentLine.length();
+		for (int i = 0; i < N;i++) {
+			Character ch = Characters[currentLine[i]];
+
+			xSum += ((ch.Advance >> 6)*scale);
+		}
+
+		return xSum;
+	}
+
 	glm::vec2 updateCaretByScroll(bool upwards) {
 
 		int scrollSpeed = 5;
@@ -621,6 +636,7 @@ public:
 			
 			string currentLine = codeText[pos.y];
 			if (pos.x >= currentLine.length())return 0;
+			if (pos.x == currentLine.length() - 1)pos.x--;
 			Character ch = Characters[currentLine[pos.x+1]];
 			return (ch.Advance >> 6) * scale;
 			//cout << currentLine << endl;
@@ -647,8 +663,17 @@ public:
 			//right
 			
 			string currentLine = codeText[pos.y];
-			if (pos.x >= currentLine.length()-1)return 10000;
+			if (pos.x > currentLine.length()-1)return 10000;
 			float xSum = startX;
+			if (pos.x == currentLine.length() - 1) {
+				for (int i = 0; i < pos.x; i++) {
+					Character ch = Characters[currentLine[i]];
+					xSum += ((ch.Advance >> 6)*scale);
+				}
+				
+				return xSum;
+			}
+			
 			for (int i = 0; i < pos.x+1; i++) {
 				Character ch = Characters[currentLine[i]];
 				xSum += ((ch.Advance >> 6)*scale);

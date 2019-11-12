@@ -85,7 +85,18 @@ void main()
 	
 	int portion = int((height-100+lineHeight-gl_FragCoord.y)/lineHeight);
 
-	if((gl_FragCoord.x>selectionBoxes[portion].minPoint.x && gl_FragCoord.x<selectionBoxes[portion].maxPoint.x) && (gl_FragCoord.y<selectionBoxes[portion].minPoint.y && gl_FragCoord.y>selectionBoxes[portion].maxPoint.y)){
+	float minX = selectionBoxes[portion].minPoint.x;
+	float minY = selectionBoxes[portion].minPoint.y;
+	float maxX = selectionBoxes[portion].maxPoint.x;
+	float maxY = selectionBoxes[portion].maxPoint.y;
+
+	float tempX = minX;
+	if(minX>maxX){
+		minX = maxX;
+		maxX = tempX;
+	}
+
+	if((gl_FragCoord.x>minX && gl_FragCoord.x<maxX) && (gl_FragCoord.y<minY && gl_FragCoord.y>maxY)){
 			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
 	}
 

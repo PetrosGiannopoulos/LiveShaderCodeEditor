@@ -601,8 +601,9 @@ public:
 				selectionBoxData[getSelectionBoxID(currentPoint.y)].minPoint.x = pressPoint.x;
 				if (xmoveState == 1) {
 					
+					float tempMaxPointX = selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x;
 					if(currentPoint.x>=codeEditor.getCharX(glm::vec2(prevPoint.z, prevPoint.w), xmoveState))selectionBoxData[getSelectionBoxID(mode->height-y)].maxPoint.x += codeEditor.getCharWidth(glm::vec2(prevPoint.z, prevPoint.w), xmoveState);
-				
+					if (selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x > codeEditor.getLineWidth(prevPoint.w))selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x = tempMaxPointX;
 				}
 				else if(xmoveState == 0){
 
