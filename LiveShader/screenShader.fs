@@ -29,6 +29,7 @@ layout (std140, binding = 2) uniform SelectionBoxes{
 
 uniform float numBoxes;
 uniform float lineHeight;
+uniform int startY;
 
 void main()
 {
@@ -84,10 +85,14 @@ void main()
 	}*/
 	
 	int portion = int((height-100+lineHeight-gl_FragCoord.y)/lineHeight);
-
-	float minX = selectionBoxes[portion].minPoint.x;
+	
+	float minX,maxX;
+	int indexSum = portion-startY;
+	
+	minX = selectionBoxes[indexSum].minPoint.x;
+	maxX = selectionBoxes[indexSum].maxPoint.x;
+	
 	float minY = selectionBoxes[portion].minPoint.y;
-	float maxX = selectionBoxes[portion].maxPoint.x;
 	float maxY = selectionBoxes[portion].maxPoint.y;
 
 	float tempX = minX;
@@ -97,7 +102,6 @@ void main()
 	}
 
 	if((gl_FragCoord.x>minX && gl_FragCoord.x<maxX) && (gl_FragCoord.y<minY && gl_FragCoord.y>maxY)){
-			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
+		FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
 	}
-
 } 

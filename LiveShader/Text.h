@@ -39,6 +39,8 @@ public:
 
 	int startX, startY, scrollX;
 	bool searchingLine = false;
+	int selectionScrollY;
+	bool isSelectionOn = false;
 
 public:
 
@@ -423,6 +425,26 @@ public:
 		return xSum;
 	}
 
+	float getLineY(float height, float i) {
+		
+		return height - 100 - (i+startY)*(rows + fontSize*0.5);
+	}
+
+	float getLineEndX(glm::vec2 pos) {
+
+		string currentLine = codeText[pos.y];
+
+		float xSum = 0;
+		float scale = 1.0;
+		for (int i = pos.x; i < currentLine.length();i++) {
+			Character ch = Characters[currentLine[i]];
+
+			xSum += ((ch.Advance >> 6)*scale);
+		}
+
+		return xSum;
+	}
+
 	glm::vec2 updateCaretByScroll(bool upwards) {
 
 		int scrollSpeed = 5;
@@ -432,11 +454,13 @@ public:
 
 			caretPos.y -= (rows + fontSize*0.5)*scrollSpeed;
 			startY+= scrollSpeed;
+			if (isSelectionOn)selectionScrollY += scrollSpeed;
 		}
 		else {
 
 			caretPos.y += (rows + fontSize*0.5)*scrollSpeed;
 			startY-= scrollSpeed;
+			if (isSelectionOn)selectionScrollY -= scrollSpeed;
 		}
 
 		
@@ -682,6 +706,38 @@ public:
 		}
 
 		return 10000;
+	}
+
+	float selectNextCharacters(glm::vec2 pos, float ix) {
+
+		string currentLine = codeText[pos.y];
+
+		float xSum = 0;
+		float scale = 1.0;
+		for (int i = pos.x; i <= ix;i++) {
+			Character ch = Characters[currentLine[i]];
+
+			xSum += ((ch.Advance >> 6)*scale);
+		}
+
+		
+
+		return xSum;
+	}
+
+	float selectPreviousCharacters(glm::vec2 pos, float ix) {
+
+		string currentLine = codeText[pos.y];
+
+		float xSum = 0;
+		float scale = 1.0;
+		for (int i = pos.x; i >= ix; i--) {
+			Character ch = Characters[currentLine[i]];
+
+			xSum += ((ch.Advance >> 6)*scale);
+		}
+
+		return xSum;
 	}
 
 	float getCurrentCharWidth(glm::vec2 pos) {
