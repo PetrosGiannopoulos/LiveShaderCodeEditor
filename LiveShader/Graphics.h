@@ -78,6 +78,7 @@ public:
 	float currentY,currentW;
 	float currentDiff;
 	int prevYState;
+	int firstYDrag;
 
 	float totalDistanceX = 0;
 
@@ -540,6 +541,7 @@ public:
 			currentY = pPoint.y;
 			currentW = pPoint.w;
 			prevYState = -1;
+			firstYDrag = -1;
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;
@@ -629,6 +631,7 @@ public:
 				}
 
 				//float currentW = pressPoint.w;
+				if (firstYDrag == -1)firstYDrag = ymoveState;
 
 				if (ymoveState == 1) {
 					
@@ -645,7 +648,8 @@ public:
 
 						for (int i = 0; i < diff;i++) {
 							selectionBoxData[getSelectionBoxID(currentY) + i].minPoint.x = codeEditor.startX;
-							selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = codeEditor.startX+codeEditor.getLineEndX(glm::vec2(0,currentW+i));
+							float v = (firstYDrag==1) ? codeEditor.getLineEndX(glm::vec2(0, currentW + i)) : 0;
+							selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = codeEditor.startX+v;
 						}
 						
 						currentDiff = diff;
@@ -667,7 +671,8 @@ public:
 						//cout << diff << endl;
 						for (int i = 0; i < diff; i++) {
 							selectionBoxData[getSelectionBoxID(currentY) - i].minPoint.x = codeEditor.startX;
-							selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = codeEditor.startX;
+							float v = (firstYDrag == 0) ? codeEditor.getLineEndX(glm::vec2(0, currentW - i)) : 0;
+							selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = codeEditor.startX+v;
 						}
 
 						currentDiff = diff;
