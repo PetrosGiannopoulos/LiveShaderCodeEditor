@@ -643,8 +643,15 @@ public:
 						currentW = prevSelectW;
 						currentY = prevSelectY;
 					}
-					//codeEditor.getLineY()
-					//if(pressPoint.w)
+
+					if (firstYDrag == 0 && currentPoint.y < pressPoint.y) {
+						firstYDrag = 1;
+						prevSelectW = currentPoint.w-1;
+						prevSelectY = currentPoint.y+codeEditor.getLineHeight();
+						currentW = prevSelectW;
+						currentY = prevSelectY;
+					}
+
 					int diff = abs((int)(currentPoint.w - currentW));
 					if (diff > 0) {
 
@@ -670,8 +677,18 @@ public:
 						currentW = prevSelectW;
 						currentY = prevSelectY;
 					}
+
+					if (firstYDrag == 1 && currentPoint.y > pressPoint.y) {
+						firstYDrag = 0;
+						prevSelectW = currentPoint.w+1;
+						prevSelectY = currentPoint.y-codeEditor.getLineHeight();
+						currentW = prevSelectW;
+						currentY = prevSelectY;
+					}
+
 					int diff = abs((int)(currentPoint.w - currentW));
 					if (diff > 0) {
+						
 						//cout << diff << endl;
 						for (int i = 0; i <= diff; i++) {
 							selectionBoxData[getSelectionBoxID(currentY) - i].minPoint.x = codeEditor.startX;
