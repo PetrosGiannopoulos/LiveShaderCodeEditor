@@ -253,7 +253,9 @@ public:
 	int getSelectionBoxID(float y) {
 
 		float lineHeight = codeEditor.getLineHeight();
-		return (mode->height - 100 + lineHeight-y) / lineHeight;
+		int id = (int)((mode->height - 100 + lineHeight - y) / lineHeight);
+		if (id < 0)return 0;
+		return id;
 	}
 
 	void initSSBOData() {
@@ -646,10 +648,12 @@ public:
 					int diff = abs((int)(currentPoint.w - currentW));
 					if (diff > 0) {
 
-						for (int i = 0; i < diff;i++) {
+						for (int i = 0; i <= diff;i++) {
 							selectionBoxData[getSelectionBoxID(currentY) + i].minPoint.x = codeEditor.startX;
 							float v = (firstYDrag==1) ? codeEditor.getLineEndX(glm::vec2(0, currentW + i)) : 0;
 							selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = codeEditor.startX+v;
+
+							if (v > 0 && i == (diff))selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = currentPoint.x;
 						}
 						
 						currentDiff = diff;
@@ -669,10 +673,12 @@ public:
 					int diff = abs((int)(currentPoint.w - currentW));
 					if (diff > 0) {
 						//cout << diff << endl;
-						for (int i = 0; i < diff; i++) {
+						for (int i = 0; i <= diff; i++) {
 							selectionBoxData[getSelectionBoxID(currentY) - i].minPoint.x = codeEditor.startX;
 							float v = (firstYDrag == 0) ? codeEditor.getLineEndX(glm::vec2(0, currentW - i)) : 0;
 							selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = codeEditor.startX+v;
+
+							if (v > 0 && i == (diff))selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = currentPoint.x;
 						}
 
 						currentDiff = diff;
