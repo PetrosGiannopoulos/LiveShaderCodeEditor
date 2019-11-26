@@ -649,18 +649,28 @@ public:
 							selectionBoxData[i].minPoint.x = codeEditor.startX;
 							selectionBoxData[i].maxPoint.x = codeEditor.startX;
 						}
+						codeEditor.clearSelectionData();
 
 						for (int i = 0; i <= diff;i++) {
 							
 							float p = (i == 0) ? pressPoint.z : 0;
 							float s = (i == 0 && signDir == 1) ? pressPoint.x : codeEditor.startX;
 							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].minPoint.x = s;
-							float v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
+							glm::vec2 v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
 
 							if (i == 0 && signDir == -1)v = codeEditor.getLineTillX(glm::vec2(p, pressPoint.w + signDir*i));
-							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v.x;
 
-							if (i == (diff))selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
+							glm::vec2 from = glm::vec2((signDir == 1) ? p : 0, pressPoint.w + signDir*i);
+							int selectionSize = v.y;
+
+							if (i == (diff)) {
+								selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
+								from.x = 0;
+								selectionSize = codeEditor.getLineTillX(glm::vec2(currentPoint.z,pressPoint.w+signDir*i)).y;
+							}
+
+							codeEditor.selectLine(from, selectionSize);
 						}
 						
 					}
@@ -678,17 +688,28 @@ public:
 							selectionBoxData[i].minPoint.x = codeEditor.startX;
 							selectionBoxData[i].maxPoint.x = codeEditor.startX;	
 						}
+						codeEditor.clearSelectionData();
+
 						for (int i = 0; i <= diff;i++) {
 
 							float p = (i == 0) ? pressPoint.z : 0;
 							float s = (i == 0 && signDir == 1) ? pressPoint.x : codeEditor.startX;
 							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].minPoint.x = s;
-							float v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
+							glm::vec2 v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
 
 							if (i == 0 && signDir == -1)v = codeEditor.getLineTillX(glm::vec2(p, pressPoint.w + signDir*i));
-							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v.x;
 
-							if (i == (diff))selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
+							glm::vec2 from = glm::vec2((signDir == 1) ? p : 0, pressPoint.w + signDir*i);
+							int selectionSize = v.y;
+
+							if (i == (diff)) {
+								selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
+								from.x = 0;
+								selectionSize = codeEditor.getLineTillX(glm::vec2(currentPoint.z, pressPoint.w + signDir*i)).y;
+							}
+
+							codeEditor.selectLine(from, selectionSize);
 						}
 						
 					}

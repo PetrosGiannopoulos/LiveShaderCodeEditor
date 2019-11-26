@@ -430,34 +430,57 @@ public:
 		return height - 100 - (i+startY)*(rows + fontSize*0.5);
 	}
 
-	float getLineEndX(glm::vec2 pos) {
+	glm::vec2 getLineEndX(glm::vec2 pos) {
 
 		string currentLine = codeText[pos.y];
 
 		float xSum = 0;
 		float scale = 1.0;
+		int counter = 0;
 		for (int i = pos.x; i < currentLine.length();i++) {
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
+			counter++;
 		}
 
-		return xSum;
+		return glm::vec2(xSum,counter);
 	}
 
-	float getLineTillX(glm::vec2 pos) {
+	glm::vec2 getLineTillX(glm::vec2 pos) {
 		
 		string currentLine = codeText[pos.y];
 
 		float xSum = 0;
 		float scale = 1.0;
+		int counter = 0;
 		for (int i = 0; i < pos.x;i++) {
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
+			counter;
 		}
 
-		return xSum;
+		return glm::vec2(xSum,counter);
+	}
+
+	void selectLine(glm::vec2 from, int selectionSize) {
+
+		for (int i = from.x; i < selectionSize;i++) {
+			selectedCharacters[from.y][i] = true;
+		}
+		
+
+	}
+
+	void clearSelectionData() {
+		int n = selectedCharacters.size();
+		for (int i = 0; i < n;i++) {
+			int nj = selectedCharacters[i].size();
+			for (int j = 0; j < nj;j++) {
+				selectedCharacters[i][j] = false;
+			}
+		}
 	}
 
 	glm::vec2 updateCaretByScroll(bool upwards) {
@@ -573,6 +596,7 @@ public:
 
 		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
 			minX += ((lch.Advance >> 6)*scale);
+			minIX++;
 		}
 
 
@@ -663,6 +687,7 @@ public:
 
 		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
 			minX += ((lch.Advance >> 6)*scale);
+			minIX++;
 		}
 
 		//caretPosI = glm::vec2(minIX, minIY);
