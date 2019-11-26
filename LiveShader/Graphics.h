@@ -79,6 +79,7 @@ public:
 	float currentDiff;
 	int prevYState;
 	int firstYDrag;
+	bool changedYState;
 
 	float totalDistanceX = 0;
 
@@ -544,6 +545,7 @@ public:
 			currentW = pPoint.w;
 			prevYState = -1;
 			firstYDrag = -1;
+			changedYState = false;
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;
@@ -618,7 +620,7 @@ public:
 				glm::vec4 prevPoint = codeEditor.getScreenToTextPoint(glm::vec2(prevCoords.x,mode->height-prevCoords.y),mode->width,mode->height);
 				glm::vec4 pressPoint = codeEditor.getScreenToTextPoint(glm::vec2(pressCoords.x, mode->height - pressCoords.y), mode->width, mode->height);
 				
-				selectionBoxData[getSelectionBoxID(currentPoint.y)].minPoint.x = pressPoint.x;
+				if(firstYDrag == -1)selectionBoxData[getSelectionBoxID(currentPoint.y)].minPoint.x = pressPoint.x;
 				if (xmoveState == 1) {
 					
 					float tempMaxPointX = selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x;
@@ -638,29 +640,46 @@ public:
 				if (ymoveState == 1) {
 					
 					if (prevYState == 0) {
-						prevSelectW -= currentDiff;
-						prevSelectY += currentDiff*codeEditor.getLineHeight();
+						//prevSelectW -= currentDiff;
+						//prevSelectY += currentDiff*codeEditor.getLineHeight();
+						prevSelectW = pressPoint.w;//currentPoint.w-1;
+						prevSelectY = pressPoint.y;
 						currentW = prevSelectW;
 						currentY = prevSelectY;
+
+						changedYState = true;
 					}
 
 					if (firstYDrag == 0 && currentPoint.y < pressPoint.y) {
 						firstYDrag = 1;
-						prevSelectW = currentPoint.w-1;
-						prevSelectY = currentPoint.y+codeEditor.getLineHeight();
+						prevSelectW = pressPoint.w;//currentPoint.w-1;
+						prevSelectY = pressPoint.y;//currentPoint.y+codeEditor.getLineHeight();
 						currentW = prevSelectW;
 						currentY = prevSelectY;
+						changedYState = false;
 					}
 
-					int diff = abs((int)(currentPoint.w - currentW));
+					int diff = abs((int)(currentPoint.w - pressPoint.w));
+					int signDir = (currentPoint.w - pressPoint.w) > 0 ? 1: -1;
 					if (diff > 0) {
 
-						for (int i = 0; i <= diff;i++) {
-							selectionBoxData[getSelectionBoxID(currentY) + i].minPoint.x = codeEditor.startX;
-							float v = (firstYDrag==1) ? codeEditor.getLineEndX(glm::vec2(0, currentW + i)) : 0;
-							selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = codeEditor.startX+v;
+						//clear selection
+						int n = selectionBoxData.size();
+						for (int i = 0; i < n; i++) {
+							selectionBoxData[i].minPoint.x = codeEditor.startX;
+							selectionBoxData[i].maxPoint.x = codeEditor.startX;
+						}
 
-							if (v > 0 && i == (diff))selectionBoxData[getSelectionBoxID(currentY) + i].maxPoint.x = currentPoint.x;
+						for (int i = 0; i <= diff;i++) {
+							
+							float p = (i == 0) ? pressPoint.z : 0;
+							float s = (i == 0 && signDir == 1) ? pressPoint.x : codeEditor.startX;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].minPoint.x = s;
+							float v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
+
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v;
+
+							if (i == (diff))selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
 						}
 						
 						currentDiff = diff;
@@ -672,32 +691,57 @@ public:
 
 					if (prevYState == 1) {
 
-						prevSelectW += currentDiff;
-						prevSelectY -= currentDiff*codeEditor.getLineHeight();
+						//prevSelectW += currentDiff;
+						//prevSelectY -= currentDiff*codeEditor.getLineHeight();
+						prevSelectW = pressPoint.w;//currentPoint.w-1;
+						prevSelectY = pressPoint.y;
 						currentW = prevSelectW;
 						currentY = prevSelectY;
+						changedYState = true;
 					}
 
 					if (firstYDrag == 1 && currentPoint.y > pressPoint.y) {
 						firstYDrag = 0;
-						prevSelectW = currentPoint.w+1;
-						prevSelectY = currentPoint.y-codeEditor.getLineHeight();
+						prevSelectW = pressPoint.w;// currentPoint.w + 1;
+						prevSelectY = pressPoint.y;// currentPoint.y - codeEditor.getLineHeight();
 						currentW = prevSelectW;
 						currentY = prevSelectY;
+						changedYState = false;
 					}
 
-					int diff = abs((int)(currentPoint.w - currentW));
+					int diff = abs((int)(currentPoint.w - pressPoint.w));
+					int signDir = (currentPoint.w - pressPoint.w) < 0 ? -1 : 1;
 					if (diff > 0) {
+
+						//clear selection
+						int n = selectionBoxData.size();
+						for (int i = 0; i < n;i++) {
+							selectionBoxData[i].minPoint.x = codeEditor.startX;
+							selectionBoxData[i].maxPoint.x = codeEditor.startX;	
+						}
+						for (int i = 0; i <= diff;i++) {
+
+							float p = (i == 0) ? pressPoint.z : 0;
+							float s = (i == 0 && signDir == 1) ? pressPoint.x : codeEditor.startX;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].minPoint.x = s;
+							float v = codeEditor.getLineEndX(glm::vec2(p, pressPoint.w + signDir*i));
+
+							selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = s + v;
+
+							if (i == (diff))selectionBoxData[getSelectionBoxID(pressPoint.y) + signDir*i].maxPoint.x = currentPoint.x;
+						}
 						
 						//cout << diff << endl;
-						for (int i = 0; i <= diff; i++) {
-							selectionBoxData[getSelectionBoxID(currentY) - i].minPoint.x = codeEditor.startX;
-							float v = (firstYDrag == 0) ? codeEditor.getLineEndX(glm::vec2(0, currentW - i)) : 0;
-							selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = codeEditor.startX+v;
+						/*for (int i = 0; i <= diff; i++) {
+							float p = (i == 0) ? pressPoint.z : 0;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) - signDir*i].minPoint.x = codeEditor.startX;
+							float v = (firstYDrag == 0) ? (i==0 ? codeEditor.getLineTillX(glm::vec2(p, pressPoint.w - signDir*i)) : codeEditor.getLineEndX(glm::vec2(p, pressPoint.w - signDir*i))) : 0;
+							selectionBoxData[getSelectionBoxID(pressPoint.y) - signDir*i].maxPoint.x = codeEditor.startX+v;
 
-							if (v > 0 && i == (diff))selectionBoxData[getSelectionBoxID(currentY) - i].maxPoint.x = currentPoint.x;
+							if (i == (diff))selectionBoxData[getSelectionBoxID(pressPoint.y) - signDir*i].maxPoint.x = currentPoint.x;
+							
 						}
-
+						*/
 						currentDiff = diff;
 						
 					}

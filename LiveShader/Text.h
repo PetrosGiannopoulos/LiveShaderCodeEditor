@@ -445,6 +445,21 @@ public:
 		return xSum;
 	}
 
+	float getLineTillX(glm::vec2 pos) {
+		
+		string currentLine = codeText[pos.y];
+
+		float xSum = 0;
+		float scale = 1.0;
+		for (int i = 0; i < pos.x;i++) {
+			Character ch = Characters[currentLine[i]];
+
+			xSum += ((ch.Advance >> 6)*scale);
+		}
+
+		return xSum;
+	}
+
 	glm::vec2 updateCaretByScroll(bool upwards) {
 
 		int scrollSpeed = 5;
@@ -541,7 +556,7 @@ public:
 			GLfloat w = ch.Size.x * scale;
 			GLfloat h = ch.Size.y * scale;
 
-			float diffX = abs(xpos - pos.x);
+			float diffX = abs(x - pos.x);
 
 			if (diffX < minDistX) {
 				minDistX = diffX;
@@ -553,6 +568,13 @@ public:
 			counter++;
 
 		}
+
+		Character lch = Characters[text[text.length() - 1]];
+
+		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
+			minX += ((lch.Advance >> 6)*scale);
+		}
+
 
 		caretPosI = glm::vec2(minIX,minIY);
 
@@ -624,7 +646,7 @@ public:
 			GLfloat w = ch.Size.x * scale;
 			GLfloat h = ch.Size.y * scale;
 
-			float diffX = abs(xpos - pos.x);
+			float diffX = abs(x - pos.x);
 
 			if (diffX < minDistX) {
 				minDistX = diffX;
@@ -635,6 +657,12 @@ public:
 			x += (ch.Advance >> 6) * scale;
 			counter++;
 
+		}
+
+		Character lch = Characters[text[text.length() - 1]];
+
+		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
+			minX += ((lch.Advance >> 6)*scale);
 		}
 
 		//caretPosI = glm::vec2(minIX, minIY);
