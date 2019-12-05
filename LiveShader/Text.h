@@ -470,7 +470,7 @@ public:
 
 	void selectLine(glm::vec2 from, int selectionSize) {
 
-		for (int i = from.x; i <= selectionSize;i++) {
+		for (int i = from.x; i < selectionSize;i++) {
 			selectedCharacters[from.y][i] = true;
 		}
 	}
@@ -537,8 +537,27 @@ public:
 
 			codeText[from.y + i].erase(selectionStart, selectionCounter);
 
+			
+
+			string copyStr = codeText[from.y + i];
+			if (selectionStart == 0) {
+				codeText[from.y + i].erase(0, copyStr.length());
+				//append
+				codeText[from.y].insert(codeText[from.y].length(), copyStr);
+			}
 		}
 
+		for (int i = lineDiff; i >= 0; i--) {
+			if (codeText[from.y + i].length() == 0) {
+				//replace it with lines below
+				int N = codeText.size();
+				for (int j = (from.y + i); j < N - 1; j++) codeText[j] = codeText[j + 1];
+				codeText[N - 1].erase(codeText[N - 1].begin(), codeText[N - 1].end());
+				codeText.resize(codeText.size() - 1);
+			}
+		}
+
+		
 		if (from.x <= to.x) {
 			caretPosI.x = from.x;
 			caretPosI.y = from.y;
@@ -840,7 +859,7 @@ public:
 
 		float xSum = 0;
 		float scale = 1.0;
-		for (int i = pos.x; i <= ix;i++) {
+		for (int i = pos.x; i < ix;i++) {
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
@@ -857,7 +876,7 @@ public:
 
 		float xSum = 0;
 		float scale = 1.0;
-		for (int i = pos.x; i >= ix; i--) {
+		for (int i = pos.x; i > ix; i--) {
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
