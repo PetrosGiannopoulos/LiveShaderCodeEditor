@@ -101,7 +101,9 @@ void main()
 		maxX = tempX;
 	}
 
-	if((gl_FragCoord.x>minX && gl_FragCoord.x<maxX) && (gl_FragCoord.y<minY && gl_FragCoord.y>maxY)){
-		FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
+	if(isSelected){
+		if((gl_FragCoord.x>minX && gl_FragCoord.x<maxX) && (gl_FragCoord.y<minY && gl_FragCoord.y>maxY)){
+			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
+		}
 	}
 } 

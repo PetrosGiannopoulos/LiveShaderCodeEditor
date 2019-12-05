@@ -91,6 +91,11 @@ public:
 
 	float time = 0;
 
+	glm::vec4 currentPressPoint;
+	glm::vec4 currentStopPoint;
+
+	
+
 	Models model;
 	unsigned int ssbo_sphere;
 
@@ -365,7 +370,6 @@ public:
 		renderScreenQuad();
 		//glBindVertexArray(screenQuadVAO);
 		
-		
 		//glDisable(GL_DEPTH_TEST);
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -620,18 +624,37 @@ public:
 				glm::vec4 prevPoint = codeEditor.getScreenToTextPoint(glm::vec2(prevCoords.x,mode->height-prevCoords.y),mode->width,mode->height);
 				glm::vec4 pressPoint = codeEditor.getScreenToTextPoint(glm::vec2(pressCoords.x, mode->height - pressCoords.y), mode->width, mode->height);
 				
+				currentPressPoint.x = pressPoint.x;
+				currentPressPoint.y = pressPoint.y;
+				currentPressPoint.z = pressPoint.z;
+				currentPressPoint.w = pressPoint.w;
+
+				currentStopPoint.x = currentPoint.x;
+				currentStopPoint.y = currentPoint.y;
+				currentStopPoint.z = currentPoint.z;
+				currentStopPoint.w = currentPoint.w;
+
+				//cout << currentPressPoint.y << " | " << currentStopPoint.y << endl;
+				codeEditor.clearSelectionData();
 				if(firstYDrag == -1)selectionBoxData[getSelectionBoxID(currentPoint.y)].minPoint.x = pressPoint.x;
 				if (xmoveState == 1) {
+					
 					
 					float tempMaxPointX = selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x;
 					if(tempMaxPointX<x)selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x += codeEditor.selectNextCharacters(glm::vec2(prevPoint.z, prevPoint.w), currentPoint.z);
 					if (selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x > codeEditor.getLineWidth(prevPoint.w))selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x = tempMaxPointX;
+					
+					codeEditor.selectSubLine(glm::vec2(pressPoint.z, pressPoint.w), currentPoint.z);
+
 				}
 				else if(xmoveState == 0){
 
 					float tempMaxPointX = selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x;
 					if (tempMaxPointX>=x)selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x -= codeEditor.selectPreviousCharacters(glm::vec2(prevPoint.z, prevPoint.w), currentPoint.z);
 					if (selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x < codeEditor.startX)selectionBoxData[getSelectionBoxID(mode->height - y)].maxPoint.x = codeEditor.startX;
+				
+					codeEditor.selectSubLine(glm::vec2(pressPoint.z, pressPoint.w), currentPoint.z);
+
 				}
 
 				//float currentW = pressPoint.w;
@@ -776,18 +799,22 @@ public:
 			case 259:
 				//backspace button
 				caretPos = codeEditor.deleteBackSpaceCharacter(mode->height);
+				codeEditor.clearSelectedChars();
 				break;
 			case 261:
 				//delete button
 				caretPos = codeEditor.deleteCharacter();
+				codeEditor.clearSelectedChars();
 				break;
 			case 257:
 				//enter button
 				caretPos = codeEditor.enterNewLine(mode->height);
+				codeEditor.clearSelectedChars();
 				break;
 			case 258:
 				//tab button
 				caretPos = codeEditor.addTabSpace();
+				codeEditor.clearSelectedChars();
 				break;
 			case 268:
 				//home button
@@ -826,8 +853,24 @@ public:
 		}
 		else {
 			if (displayMode == false) {
+
+				if (codeEditor.isSelectionOn) {
+					isDragSelected = false;
+					isSelected = false;
+					isPressSelected = false;
+					codeEditor.isSelectionOn = false;
+
+					//TODO: erase selection
+					if(currentPressPoint.w<=currentStopPoint.w)codeEditor.eraseSelection(glm::vec2(currentPressPoint.z,currentPressPoint.w),glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y));
+					else codeEditor.eraseSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y));
+				}
+
 				char c = keycode;
 				caretPos = codeEditor.insertCharacter(c);
+
+				
+				codeEditor.clearSelectedChars();
+				
 			}
 		}
 	}

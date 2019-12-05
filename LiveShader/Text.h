@@ -80,11 +80,16 @@ public:
 	void readLines(vector<string> lines) {
 		codeText.clear();
 		codeText = lines;
+
+		clearSelectedChars();
+	}
+
+	void clearSelectedChars() {
 		selectedCharacters.clear();
 		int N = codeText.size();
-		for (int i = 0; i < N;i++) {
+		for (int i = 0; i < N; i++) {
 			vector<bool> selectedChars;
-			int L = lines[i].size();
+			int L = codeText[i].size();
 			for (int l = 0; l < L; l++) { selectedChars.push_back(false); }
 			selectedCharacters.push_back(selectedChars);
 		}
@@ -199,7 +204,6 @@ public:
 		//RenderText(textShader,"exampleText", 100,height-200, 1.0f, glm::vec3(1,0,0));
 
 		int N = codeText.size();
-
 		
 
 		for (int i = 0; i < N;i++) {
@@ -458,7 +462,7 @@ public:
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
-			counter;
+			counter++;
 		}
 
 		return glm::vec2(xSum,counter);
@@ -466,10 +470,25 @@ public:
 
 	void selectLine(glm::vec2 from, int selectionSize) {
 
-		for (int i = from.x; i < selectionSize;i++) {
+		for (int i = from.x; i <= selectionSize;i++) {
 			selectedCharacters[from.y][i] = true;
 		}
-		
+	}
+
+	void selectSubLine(glm::vec2 from, float posX) {
+
+		int signDiff = from.x - posX;
+
+		if (signDiff < 0) {
+			for (int i = from.x; i < posX;i++) {
+				selectedCharacters[from.y][i] = true;
+			}
+		}
+		else {
+			for (int i = posX; i < from.x;i++) {
+				selectedCharacters[from.y][i] = true;
+			}
+		}
 
 	}
 
@@ -481,6 +500,60 @@ public:
 				selectedCharacters[i][j] = false;
 			}
 		}
+	}
+
+	void eraseSelection(glm::vec2 from, glm::vec2 to, glm::vec2 fromXY, glm::vec2 toXY) {
+
+		int lineDiff = abs(from.y-to.y);
+		int lengthDiff = abs(from.x-to.x);
+
+		if (lineDiff == 0 && lengthDiff == 0)return;
+
+		for (int i = 0; i <= lineDiff;i++) {
+			
+			string currentLine = codeText[from.y + i];
+
+			int selectionStart = 0;
+			int selectionCounter = 0;
+			for (int j = 0; j < currentLine.length();j++) {
+
+				if (j > 0) {
+					if (selectedCharacters[from.y + i][j] == true && selectedCharacters[from.y + i][j - 1] == false) {
+						selectionStart = j;
+					}
+				}
+				else {
+					if (selectedCharacters[from.y + i][j] == true) {
+						selectionStart = j;
+					}
+				}
+
+				if (selectedCharacters[from.y+i][j]==true) {
+					selectionCounter++;
+				}
+				else if (j > 0) if(selectedCharacters[from.y + i][j - 1] == true)break;
+
+			}
+
+			codeText[from.y + i].erase(selectionStart, selectionCounter);
+
+		}
+
+		if (from.x <= to.x) {
+			caretPosI.x = from.x;
+			caretPosI.y = from.y;
+			caretPos.x = fromXY.x;
+			caretPos.y = fromXY.y;
+		}
+		else {
+			caretPosI.x = to.x;
+			caretPosI.y = to.y;
+			caretPos.x = toXY.x;
+			caretPos.y = toXY.y;
+		}
+
+		
+		
 	}
 
 	glm::vec2 updateCaretByScroll(bool upwards) {
