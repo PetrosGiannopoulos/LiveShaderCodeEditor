@@ -68,149 +68,153 @@ d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(421): w
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(422): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(434): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(439): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(444): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(456): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(473): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(474): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(480): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(483): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(484): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(488): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(489): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(496): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(498): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(507): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(508): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(514): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(521): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(526): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(531): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(444): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(445): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(457): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(476): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(477): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(478): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(494): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(497): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(498): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(502): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(503): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(510): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(512): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(521): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(522): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(528): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(534): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(538): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(542): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(539): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(544): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(546): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(551): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(553): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(554): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(581): warning C4804: '>': unsafe use of type 'bool' in operation
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(585): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(591): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(616): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(631): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(647): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(651): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(652): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(661): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(662): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(679): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(716): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(722): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(738): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(742): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(743): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(752): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(753): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(770): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(798): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(799): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(806): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(809): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(823): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(824): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(834): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(836): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(858): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(862): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(875): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(879): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(891): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(892): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(900): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(902): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(911): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(548): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(555): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(557): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(559): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(561): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(566): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(568): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(569): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(604): warning C4804: '>': unsafe use of type 'bool' in operation
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(608): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(614): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(639): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(654): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(670): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(674): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(675): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(684): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(685): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(702): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(739): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(745): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(761): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(765): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(766): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(775): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(776): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(793): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(821): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(822): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(829): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(832): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(846): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(847): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(857): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(859): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(881): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(885): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(898): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(902): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(914): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(915): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(923): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(926): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(934): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(945): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(957): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(958): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(975): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(984): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(992): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1004): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1005): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1022): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1031): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1038): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1049): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1064): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1070): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1071): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1077): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1079): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1082): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1102): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1103): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1105): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1113): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1114): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1132): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1134): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1134): warning C4244: 'argument': conversion from 'float' to '__int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1138): warning C4244: 'argument': conversion from 'float' to '__int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1143): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1148): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1153): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1160): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1162): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1163): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1173): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1192): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1204): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(227): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(250): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(254): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(294): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(315): warning C4305: '+=': truncation from 'double' to 'float'
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(346): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(925): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(934): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(946): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(949): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(957): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(968): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(980): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(981): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(998): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1007): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1015): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1027): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1028): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1045): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1054): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1061): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1072): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1087): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1093): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1094): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1100): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1102): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1105): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1125): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1126): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1128): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1136): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1137): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1155): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1157): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1157): warning C4244: 'argument': conversion from 'float' to '__int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1161): warning C4244: 'argument': conversion from 'float' to '__int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1166): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1171): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1176): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1183): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1185): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1186): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1196): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1215): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Text.h(1227): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(228): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(251): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(255): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(295): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(316): warning C4305: '+=': truncation from 'double' to 'float'
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(347): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(350): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(377): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(416): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(529): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(348): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(351): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(378): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(417): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(530): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(577): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(578): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(582): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(583): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(585): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(586): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(604): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(609): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(613): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(618): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(649): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(531): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(579): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(580): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(584): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(585): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(587): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(588): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(606): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(611): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(615): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(620): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(650): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(651): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(651): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(658): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(652): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(652): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(659): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(660): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(660): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(676): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(678): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(661): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(661): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(677): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(679): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(695): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(700): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(716): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(718): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(719): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(735): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(742): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(765): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(680): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(696): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(701): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(706): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(723): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(725): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(726): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(742): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(749): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(754): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+d:\χρήσιμα έγγραφα\liveshader\liveshader\liveshader\Graphics.h(779): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Generating code
-  46 of 1540 functions ( 3.0%) were compiled, the rest were copied from previous compilation.
+  46 of 1541 functions ( 3.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     8 functions had inline decision re-evaluated but remain unchanged
   Finished generating code

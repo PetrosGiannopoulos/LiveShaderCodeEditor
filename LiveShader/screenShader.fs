@@ -106,4 +106,19 @@ void main()
 			FragColor = mix(FragColor,vec4(0.1,0.2,0.94,1),0.2);
 		}
 	}
+
+	float diffX_min = abs(gl_FragCoord.x-minX);
+	float diffY_min = abs(gl_FragCoord.y-minY);
+
+	if(diffX_min<caretWidth && diffY_min<caretHeight){
+		FragColor = mix(FragColor,vec4(1,0,0,1),0.5);
+	}
+
+	float diffX_max = abs(gl_FragCoord.x-maxX);
+	float diffY_max = abs(gl_FragCoord.y-maxY);
+	
+	if(diffX_max<caretWidth && diffY_max<caretHeight){
+		FragColor = mix(FragColor,vec4(0,1,0,1),0.5);
+	}
+
 } 

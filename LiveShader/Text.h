@@ -441,7 +441,8 @@ public:
 		float xSum = 0;
 		float scale = 1.0;
 		int counter = 0;
-		for (int i = pos.x; i < currentLine.length();i++) {
+		int N = currentLine.length();
+		for (int i = pos.x; i < N;i++) {
 			Character ch = Characters[currentLine[i]];
 
 			xSum += ((ch.Advance >> 6)*scale);
@@ -470,9 +471,22 @@ public:
 
 	void selectLine(glm::vec2 from, int selectionSize) {
 
-		for (int i = from.x; i < selectionSize;i++) {
+		int counter = 0;
+		
+		string currentLine = codeText[from.y];
+		for (int i = from.x; i < currentLine.length() ;i++) {
 			selectedCharacters[from.y][i] = true;
+			counter++;
+			if (counter >= selectionSize)break;
 		}
+
+		/*
+		
+		for (int i = 0; i < currentLine.length(); i++) {
+			cout << currentLine[i];
+		}
+		cout << " selectionSize: " << selectionSize << " | pointx: " << from.x<< endl;
+		*/
 	}
 
 	void selectSubLine(glm::vec2 from, float posX) {
@@ -512,7 +526,6 @@ public:
 		for (int i = 0; i <= lineDiff;i++) {
 			
 			string currentLine = codeText[from.y + i];
-
 			int selectionStart = 0;
 			int selectionCounter = 0;
 			for (int j = 0; j < currentLine.length();j++) {
@@ -530,19 +543,21 @@ public:
 
 				if (selectedCharacters[from.y+i][j]==true) {
 					selectionCounter++;
+					//cout << currentLine[j];
 				}
-				else if (j > 0) if(selectedCharacters[from.y + i][j - 1] == true)break;
+				else if (j > 0) if (selectedCharacters[from.y + i][j - 1] == true)break;
 
 			}
+			//cout << " | " << selectionCounter<< endl;
+			
+			//cout << codeText[from.y + i].substr(selectionStart, selectionCounter) << endl;
 
 			codeText[from.y + i].erase(selectionStart, selectionCounter);
-
-			
 
 			string copyStr = codeText[from.y + i];
 			if (selectionStart == 0) {
 				codeText[from.y + i].erase(0, copyStr.length());
-				//append
+				//append to end of first line
 				codeText[from.y].insert(codeText[from.y].length(), copyStr);
 			}
 		}
@@ -558,20 +573,27 @@ public:
 		}
 
 		
-		if (from.x <= to.x) {
-			caretPosI.x = from.x;
+		
+
+		if (from.y <= to.y) {
 			caretPosI.y = from.y;
-			caretPos.x = fromXY.x;
 			caretPos.y = fromXY.y;
+			caretPosI.x = from.x;
+			caretPos.x = fromXY.x;
 		}
 		else {
-			caretPosI.x = to.x;
 			caretPosI.y = to.y;
-			caretPos.x = toXY.x;
 			caretPos.y = toXY.y;
-		}
 
-		
+			if (from.x <= to.x) {
+				caretPosI.x = from.x;
+				caretPos.x = fromXY.x;
+			}
+			else {
+				caretPosI.x = to.x;
+				caretPos.x = toXY.x;
+			}
+		}
 		
 	}
 
