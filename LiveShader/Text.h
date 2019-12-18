@@ -13,6 +13,7 @@ class Text {
 public:
 
 	vector<string> codeText;
+	vector<string> copyText;
 	vector<vector<bool>> selectedCharacters;
 
 	Shader textShader, *screenShader;
@@ -513,6 +514,44 @@ public:
 			for (int j = 0; j < nj;j++) {
 				selectedCharacters[i][j] = false;
 			}
+		}
+	}
+
+	void copySelection(glm::vec2 from, glm::vec2 to) {
+
+		int lineDiff = abs(from.y-to.y);
+		int lengthDiff = abs(from.x - to.x);
+
+		if (lineDiff == 0 && lengthDiff == 0)return;
+
+		copyText.clear();
+
+		for (int i = 0; i <= lineDiff; i++) {
+
+			string currentLine = codeText[from.y + i];
+			int selectionStart = 0;
+			int selectionCounter = 0;
+			for (int j = 0; j < currentLine.length(); j++) {
+
+				if (j > 0) {
+					if (selectedCharacters[from.y + i][j] == true && selectedCharacters[from.y + i][j - 1] == false) {
+						selectionStart = j;
+					}
+				}
+				else {
+					if (selectedCharacters[from.y + i][j] == true) {
+						selectionStart = j;
+					}
+				}
+
+				if (selectedCharacters[from.y + i][j] == true) {
+					selectionCounter++;
+					//cout << currentLine[j];
+				}
+				else if (j > 0) if (selectedCharacters[from.y + i][j - 1] == true)break;
+
+			}
+			copyText.push_back(codeText[from.y + i].substr(selectionStart, selectionCounter));
 		}
 	}
 

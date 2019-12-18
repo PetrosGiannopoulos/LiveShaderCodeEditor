@@ -782,6 +782,30 @@ public:
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		//action: GLFW_PRESS / GLFW_RELEASE / GLFW_REPEAT
 		//string keyName = string(glfwGetKeyName(key, scancode));
+		if (mods == GLFW_MOD_CONTROL) {
+			//string keyName = string(glfwGetKeyName(key, scancode));
+			//cout << key << endl;
+
+			switch (key) {
+				case 67:
+					//ctrl+c
+					if (codeEditor.isSelectionOn) {
+
+						//TODO: copy selection
+						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.copySelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w));
+						else codeEditor.copySelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w));
+
+					}
+					break;
+				case 86:
+					//ctrl+v
+
+						//TODO: paste selection
+					break;
+				default:
+					break;
+			};
+		}
 		
 		
 		switch (action) {
@@ -822,21 +846,23 @@ public:
 				break;
 			case 259:
 				//backspace button
-				caretPos = codeEditor.deleteBackSpaceCharacter(mode->height);
+				if(eraseSelection()==false)caretPos = codeEditor.deleteBackSpaceCharacter(mode->height);
 				codeEditor.clearSelectedChars();
 				break;
 			case 261:
 				//delete button
-				caretPos = codeEditor.deleteCharacter();
+				if(eraseSelection()==false)caretPos = codeEditor.deleteCharacter();
 				codeEditor.clearSelectedChars();
 				break;
 			case 257:
 				//enter button
+				eraseSelection();
 				caretPos = codeEditor.enterNewLine(mode->height);
 				codeEditor.clearSelectedChars();
 				break;
 			case 258:
 				//tab button
+				eraseSelection();
 				caretPos = codeEditor.addTabSpace();
 				codeEditor.clearSelectedChars();
 				break;
@@ -878,16 +904,7 @@ public:
 		else {
 			if (displayMode == false) {
 
-				if (codeEditor.isSelectionOn) {
-					isDragSelected = false;
-					isSelected = false;
-					isPressSelected = false;
-					codeEditor.isSelectionOn = false;
-
-					//TODO: erase selection
-					if(currentPressPoint.w<=currentStopPoint.w)codeEditor.eraseSelection(glm::vec2(currentPressPoint.z,currentPressPoint.w),glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y));
-					else codeEditor.eraseSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y));
-				}
+				eraseSelection();
 
 				char c = keycode;
 				caretPos = codeEditor.insertCharacter(c);
@@ -897,6 +914,25 @@ public:
 				
 			}
 		}
+	}
+
+	bool eraseSelection() {
+		if (codeEditor.isSelectionOn) {
+			isDragSelected = false;
+			isSelected = false;
+			isPressSelected = false;
+			codeEditor.isSelectionOn = false;
+
+			//TODO: erase selection
+			if (currentPressPoint.w <= currentStopPoint.w)codeEditor.eraseSelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y));
+			else codeEditor.eraseSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y));
+		
+			caretPos = codeEditor.caretPos;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	void terminate() {
