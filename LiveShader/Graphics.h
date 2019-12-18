@@ -782,12 +782,29 @@ public:
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		//action: GLFW_PRESS / GLFW_RELEASE / GLFW_REPEAT
 		//string keyName = string(glfwGetKeyName(key, scancode));
-		if (mods == GLFW_MOD_CONTROL) {
-			//string keyName = string(glfwGetKeyName(key, scancode));
-			//cout << key << endl;
+		
+		switch (action) {
+			case GLFW_PRESS:
+				//cout << key << endl;
+				
+				keyAction(key,mods);
+				break;
+			case GLFW_RELEASE:
+				break;
+			case GLFW_REPEAT:
+				keyAction(key,mods);
+				break;
+			default:
+				break;
+		};
+	}
 
-			switch (key) {
-				case 67:
+	void keyAction(int key, int mods) {
+
+		switch (key) {
+
+			case 67:
+				if (mods == GLFW_MOD_CONTROL) {
 					//ctrl+c
 					if (codeEditor.isSelectionOn) {
 
@@ -796,37 +813,20 @@ public:
 						else codeEditor.copySelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w));
 
 					}
-					break;
-				case 86:
+				}
+				break;
+			case 86:
+				if (mods == GLFW_MOD_CONTROL) {
 					//ctrl+v
+					eraseSelection();
 
-						//TODO: paste selection
-					break;
-				default:
-					break;
-			};
-		}
-		
-		
-		switch (action) {
-			case GLFW_PRESS:
-				//cout << key << endl;
-				
-				keyAction(key);
-				break;
-			case GLFW_RELEASE:
-				break;
-			case GLFW_REPEAT:
-				keyAction(key);
-				break;
-			default:
-				break;
-		};
-	}
+					//TODO: paste selection
 
-	void keyAction(int key) {
+					codeEditor.pasteSelection();
 
-		switch (key) {
+					codeEditor.clearSelectedChars();
+				}
+				break;
 			case 263:
 
 				//left arrow button

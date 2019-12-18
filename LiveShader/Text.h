@@ -517,6 +517,45 @@ public:
 		}
 	}
 
+	void pasteSelection() {
+
+		int x = caretPosI.x;
+		int y = caretPosI.y;
+
+		int lineDiff = copyText.size();
+
+		if (lineDiff == 0)return;
+
+		//copy text before caretPosI.x
+
+		string firstLine = codeText[y];
+		string startLine;
+		for (int i = 0; i < firstLine.length();i++) {
+			if (i >= x)break;
+			startLine += firstLine[i];
+		}
+
+		string cpyStr = codeText[caretPosI.y].substr(caretPosI.x, codeText[caretPosI.y].length() - caretPosI.x);
+
+		codeText[caretPosI.y].erase(codeText[caretPosI.y].begin() + caretPosI.x, codeText[caretPosI.y].end());
+
+		//if (codeText[caretPosI.y].length() == 0)codeText[caretPosI.y].push_back(' ');
+
+		codeText.insert(codeText.begin() + caretPosI.y + 1, cpyStr);
+
+		//TODO: push lines below 1 line down
+
+		for (int i = 0; i < lineDiff;i++) {
+			string currentString = copyText[i];
+			int N = currentString.length();
+			if(i==0)for (int j = 0; j < N;j++) insertCharacter(currentString[j]);
+			else {
+				codeText.insert(codeText.begin() + caretPosI.y + i, currentString);
+			}
+			
+		}
+	}
+
 	void copySelection(glm::vec2 from, glm::vec2 to) {
 
 		int lineDiff = abs(from.y-to.y);
@@ -552,6 +591,7 @@ public:
 
 			}
 			copyText.push_back(codeText[from.y + i].substr(selectionStart, selectionCounter));
+			//cout << codeText[from.y + i].substr(selectionStart, selectionCounter)  << endl;
 		}
 	}
 
