@@ -541,7 +541,7 @@ public:
 
 		//if (codeText[caretPosI.y].length() == 0)codeText[caretPosI.y].push_back(' ');
 
-		codeText.insert(codeText.begin() + caretPosI.y + 1, cpyStr);
+		//codeText.insert(codeText.begin() + caretPosI.y + 1, cpyStr);
 
 		//TODO: push lines below 1 line down
 
@@ -550,10 +550,15 @@ public:
 			int N = currentString.length();
 			if(i==0)for (int j = 0; j < N;j++) insertCharacter(currentString[j]);
 			else {
+				if (i == lineDiff - 1)currentString += cpyStr;
 				codeText.insert(codeText.begin() + caretPosI.y + i, currentString);
-			}
-			
+			}	
 		}
+	}
+
+	void cutSelection(glm::vec2 from, glm::vec2 to, glm::vec2 fromXY, glm::vec2 toXY) {
+		copySelection(from,to);
+		eraseSelection(from, to, fromXY, toXY);
 	}
 
 	void copySelection(glm::vec2 from, glm::vec2 to) {

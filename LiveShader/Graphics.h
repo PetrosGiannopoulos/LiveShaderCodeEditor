@@ -827,6 +827,26 @@ public:
 					codeEditor.clearSelectedChars();
 				}
 				break;
+			case 88:
+				if (mods == GLFW_MOD_CONTROL) {
+					//ctrl+x
+					
+					//TODO: cut selection
+					if (codeEditor.isSelectionOn) {
+						isDragSelected = false;
+						isSelected = false;
+						isPressSelected = false;
+						codeEditor.isSelectionOn = false;
+
+						//TODO: erase selection
+						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.cutSelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y));
+						else codeEditor.cutSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y));
+					}
+					caretPos = codeEditor.caretPos;
+
+					codeEditor.clearSelectedChars();
+				}
+				break;
 			case 263:
 
 				//left arrow button
