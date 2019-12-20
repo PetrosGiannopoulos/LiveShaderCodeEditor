@@ -517,6 +517,41 @@ public:
 		}
 	}
 
+	void getSystemClipboardText(GLFWwindow *window) {
+		string s = glfwGetClipboardString(window);
+
+		//cout << s << endl;
+		int counter = 0;
+		copyText.clear();
+		string line = "";
+		for (int i = 0; i < s.length(); i++) {
+
+			if (i == 0) {
+				copyText.push_back("");
+			}
+
+			if (s[i] != '\n' && s[i] != '\t' && !isspace(s[i]))copyText[counter] += s[i];
+
+			if (isspace(s[i]))copyText[counter] += ' ';
+
+			if (s[i] == '\t') {
+				for (int j = 0; j < 4;j++)copyText[counter] += ' ';
+			}
+
+			if (s[i] == '\n') {
+				copyText.push_back("");
+				counter++;
+			}
+
+		}
+
+	}
+
+	void pasteSelectionFromClipboard(GLFWwindow *window) {
+		getSystemClipboardText(window);
+		pasteSelection();
+	}
+
 	void pasteSelection() {
 
 		int x = caretPosI.x;

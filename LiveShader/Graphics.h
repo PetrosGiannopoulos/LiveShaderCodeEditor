@@ -822,7 +822,8 @@ public:
 
 					//TODO: paste selection
 
-					codeEditor.pasteSelection();
+					codeEditor.pasteSelectionFromClipboard(window);
+					//codeEditor.pasteSelection();
 
 					codeEditor.clearSelectedChars();
 				}
