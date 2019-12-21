@@ -809,8 +809,8 @@ public:
 					if (codeEditor.isSelectionOn) {
 
 						//TODO: copy selection
-						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.copySelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w));
-						else codeEditor.copySelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w));
+						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.copySelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w),window);
+						else codeEditor.copySelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w),window);
 
 					}
 				}
@@ -824,6 +824,8 @@ public:
 
 					codeEditor.pasteSelectionFromClipboard(window);
 					//codeEditor.pasteSelection();
+
+					caretPos = codeEditor.caretPos;
 
 					codeEditor.clearSelectedChars();
 				}
@@ -840,8 +842,8 @@ public:
 						codeEditor.isSelectionOn = false;
 
 						//TODO: erase selection
-						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.cutSelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y));
-						else codeEditor.cutSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y));
+						if (currentPressPoint.w <= currentStopPoint.w)codeEditor.cutSelection(glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.x, currentPressPoint.y), glm::vec2(currentStopPoint.x, currentStopPoint.y),window);
+						else codeEditor.cutSelection(glm::vec2(currentStopPoint.z, currentStopPoint.w), glm::vec2(currentPressPoint.z, currentPressPoint.w), glm::vec2(currentStopPoint.x, currentStopPoint.y), glm::vec2(currentPressPoint.x, currentPressPoint.y),window);
 					}
 					caretPos = codeEditor.caretPos;
 

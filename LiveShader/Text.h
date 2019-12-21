@@ -520,31 +520,30 @@ public:
 	void getSystemClipboardText(GLFWwindow *window) {
 		string s = glfwGetClipboardString(window);
 
-		//cout << s << endl;
+		cout << s << endl;
 		int counter = 0;
 		copyText.clear();
-		string line = "";
+		string line;
+
 		for (int i = 0; i < s.length(); i++) {
 
-			if (i == 0) {
-				copyText.push_back("");
+			if (s[i] == '\n') {
+				if (line.length() == 0)line += ' ';
+				copyText.push_back(line);
+				line.clear();
+				continue;
 			}
-
-			if (s[i] != '\n' && s[i] != '\t' && !isspace(s[i]))copyText[counter] += s[i];
-
-			if (isspace(s[i]))copyText[counter] += ' ';
 
 			if (s[i] == '\t') {
-				for (int j = 0; j < 4;j++)copyText[counter] += ' ';
+				for (int i = 0; i < 4; i++) {
+					line += ' ';
+				}
 			}
-
-			if (s[i] == '\n') {
-				copyText.push_back("");
-				counter++;
+			else {
+				line += s[i];
 			}
-
 		}
-
+		copyText.push_back(line);
 	}
 
 	void pasteSelectionFromClipboard(GLFWwindow *window) {
@@ -591,12 +590,12 @@ public:
 		}
 	}
 
-	void cutSelection(glm::vec2 from, glm::vec2 to, glm::vec2 fromXY, glm::vec2 toXY) {
-		copySelection(from,to);
+	void cutSelection(glm::vec2 from, glm::vec2 to, glm::vec2 fromXY, glm::vec2 toXY, GLFWwindow *window) {
+		copySelection(from,to, window);
 		eraseSelection(from, to, fromXY, toXY);
 	}
 
-	void copySelection(glm::vec2 from, glm::vec2 to) {
+	void copySelection(glm::vec2 from, glm::vec2 to, GLFWwindow *window) {
 
 		int lineDiff = abs(from.y-to.y);
 		int lengthDiff = abs(from.x - to.x);
@@ -605,6 +604,7 @@ public:
 
 		copyText.clear();
 
+		string s;
 		for (int i = 0; i <= lineDiff; i++) {
 
 			string currentLine = codeText[from.y + i];
@@ -631,8 +631,12 @@ public:
 
 			}
 			copyText.push_back(codeText[from.y + i].substr(selectionStart, selectionCounter));
+			s += codeText[from.y + i].substr(selectionStart, selectionCounter);
+			s += '\n';
 			//cout << codeText[from.y + i].substr(selectionStart, selectionCounter)  << endl;
 		}
+
+		glfwSetClipboardString(window, s.c_str());
 	}
 
 	void eraseSelection(glm::vec2 from, glm::vec2 to, glm::vec2 fromXY, glm::vec2 toXY) {
