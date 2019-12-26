@@ -19,6 +19,8 @@ uniform vec2 maxSelectedArea;
 uniform bool isSelected;
 uniform bool isPopupOpened;
 
+uniform vec2 popupPos;
+
 struct SelectionBox{
 	vec2 minPoint;
 	vec2 maxPoint;
@@ -126,8 +128,12 @@ void main()
 
 	//popup menu
 	if(isPopupOpened){
-		if((gl_FragCoord.x>200 && gl_FragCoord.x<300) && (gl_FragCoord.y<500 && gl_FragCoord.y>400)){
-			FragColor = mix(FragColor,vec4(0.4,0.6,0.84,1),0.4);
+		if((gl_FragCoord.x>popupPos.x && gl_FragCoord.x<(popupPos.x+300)) && (gl_FragCoord.y>(popupPos.y-200) && gl_FragCoord.y<popupPos.y)){
+
+
+			float v = (gl_FragCoord.y-popupPos.y)*(1)/(200);
+			FragColor = mix(FragColor,vec4(0.9,0.9,0.74,1),0.4-v);
+			//FragColor = vec4(0.4,0.6,0.81,1);
 		}
 	}
 

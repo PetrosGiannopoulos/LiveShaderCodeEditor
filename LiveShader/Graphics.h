@@ -364,6 +364,10 @@ public:
 		screenShader.setVec2("maxSelectedArea",maxSelectedArea);
 
 		screenShader.setBool("isPopupOpened", isPopupOpened);
+		screenShader.setVec2("popupPos", glm::vec2(codeEditor.popupX-10,mode->height-codeEditor.popupY+25));
+		codeEditor.isPopupOpened = isPopupOpened;
+		codeEditor.popupPos = glm::vec2(codeEditor.popupX - 10, mode->height - codeEditor.popupY + 25);
+		
 		//set caretPos
 		codeEditor.caretPos = caretPos;
 
@@ -563,6 +567,14 @@ public:
 
 		if (newRightMouseButtonState == GLFW_PRESS && oldRightMouseButtonState == GLFW_RELEASE) {
 			isPopupOpened = true;
+
+			double x, y;
+			glfwGetCursorPos(window, &x, &y);
+			y = y + 25;
+
+			codeEditor.popupX = x;
+			codeEditor.popupY = y;
+			cout << "open" << endl;
 		}
 
 		oldLeftMouseButtonState = newLeftMouseButtonState;

@@ -40,9 +40,12 @@ public:
 	glm::vec2 caretPosI;
 
 	int startX, startY, scrollX;
+	int popupX, popupY;
+	glm::vec2 popupPos;
 	bool searchingLine = false;
 	int selectionScrollY;
 	bool isSelectionOn = false;
+	bool isPopupOpened = false;
 
 public:
 
@@ -222,6 +225,16 @@ public:
 
 		//RenderText(textShader,"exampleText", 100,height-200, 1.0f, glm::vec3(1,0,0));
 
+
+		if (isPopupOpened) {
+			int N = popupText.size();
+
+			for (int i = 0; i < N; i++) {
+				vector<int> keywordType;
+				RenderText(width, textShader, popupText[i], keywordType, popupX, height - (popupY + i*(rows + fontSize*0.5)), 1.0f, glm::vec3(0.14, 0.33, 0.07), 2);
+			}
+		}
+
 		int N = codeText.size();
 		
 
@@ -230,7 +243,7 @@ public:
 			if ((height - 100 - (i + startY)*(rows + fontSize*0.5))<0 || (height - 100 - (i + startY)*(rows + fontSize*0.5))>height)continue;
 
 			vector<int> keywordType = preprocessText(codeText[i]);
-			RenderText(width,textShader, codeText[i], keywordType , startX-scrollX, height - 100-(i+startY)*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0));
+			RenderText(width,textShader, codeText[i], keywordType , startX-scrollX, height - 100-(i+startY)*(rows+fontSize*0.5), 1.0f, glm::vec3(0, 0, 0),0);
 		
 
 			//render line numbers
@@ -241,10 +254,10 @@ public:
 				spaces += ' ';
 			}
 
-			RenderText(width,textShader, spaces+to_string(i+1), keywordType, 10, height - 100 - (i+startY)*(rows + fontSize*0.5), 1.0, glm::vec3(1, 1, 1), false);
+			RenderText(width,textShader, spaces+to_string(i+1), keywordType, 10, height - 100 - (i+startY)*(rows + fontSize*0.5), 1.0, glm::vec3(1, 1, 1), 3);
 		}
 
-
+		
 	}
 
 	int numDigits(int number)
@@ -367,11 +380,15 @@ public:
 
 	}
 
-	void RenderText(int width, Shader &shader, string text, vector<int> keywordType, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, bool keywords=true)
+	void RenderText(int width, Shader &shader, string text, vector<int> keywordType, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, int keywords=0)
 	{
 		// Activate corresponding render state	
 		shader.use();
 		shader.setVec3("textColor", color);
+		shader.setBool("isPopupOpened", isPopupOpened);
+		shader.setVec2("popupPos",popupPos);
+		shader.setInt("isPopupText", keywords);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(VAO);
 
@@ -380,7 +397,7 @@ public:
 		int counter = 0;
 		for (c = text.begin(); c != text.end(); c++)
 		{
-			if (keywords) {
+			if (keywords==0) {
 				if (keywordType[counter] == 0)shader.setVec3("textColor", color);
 				else if (keywordType[counter] == 1)shader.setVec3("textColor", glm::vec3(51 / 255., 131 / 255., 247 / 255.));
 				else if(keywordType[counter] == 2) shader.setVec3("textColor", glm::vec3(45 / 255., 155 / 255., 45 / 255.));
