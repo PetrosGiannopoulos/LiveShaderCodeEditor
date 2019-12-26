@@ -14,6 +14,7 @@ public:
 
 	vector<string> codeText;
 	vector<string> copyText;
+	vector<string> popupText;
 	vector<vector<bool>> selectedCharacters;
 
 	Shader textShader, *screenShader;
@@ -75,6 +76,8 @@ public:
 		startX = 100;
 		startY = 0;
 		scrollX = 0;
+
+		fillPopupText();
 		
 	}
 
@@ -94,6 +97,21 @@ public:
 			for (int l = 0; l < L; l++) { selectedChars.push_back(false); }
 			selectedCharacters.push_back(selectedChars);
 		}
+	}
+
+	void fillPopupText() {
+
+		popupText.push_back("Cast Ray Method");
+		popupText.push_back("Trace Method");
+		popupText.push_back("Shade Method");
+		popupText.push_back("Distance Map Method");
+		popupText.push_back("BlinnPhong Model Method");
+		popupText.push_back("Ray Marched Lighting Method");
+		popupText.push_back("Intersect Box/Boxes Method");
+		popupText.push_back("Intersect Sphere/Spheres Method");
+		popupText.push_back("Intersect Triangle/Triangles Method");
+		popupText.push_back("Frensel Reflect Amount Method");
+
 	}
 
 	glm::vec2 initCaretPos(int height) {

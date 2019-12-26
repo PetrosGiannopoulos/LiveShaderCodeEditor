@@ -1,0 +1,51 @@
+float sdSphere(vec3 p, float s){
+    return length(p)-s; 
+}
+ 
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 d = abs(p) - b;
+  return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+ 
+float map(vec3 p){
+ 
+    //info.type = -1;
+    //info.hasShadows = false;
+    float minH = MAX_SCENE_BOUNDS;
+     
+    /*for(int i=1;i<NUM_BOXES;i++){
+        
+       box pos = boxes[i];
+       
+       if(i==1){
+            vec3 offset = cube.xyz+vec3(0,-2.5,-30);
+            pos.min = offset-cube.w*0.5;
+            pos.max = offset+cube.w*0.5;
+        }
+        if(i==2){
+            vec3 offset = mirror.xyz+vec3(0,-2.5,-30);
+            pos.min.x = offset.x;
+            pos.min.yz = offset.yz-mirror.w*0.5;
+            pos.max.yz = offset.yz+mirror.w*0.5;
+            pos.max.x = pos.min.x+0.1;
+        }
+       
+       vec3 b = abs(pos.max-pos.min)*0.5;
+       vec3 c = pos.min+b*0.5;
+       float h = sdBox(p-c,b);
+       minH = min(h,minH); 
+    }*/
+   
+    for(int i=0;i<5;i++){
+        vec3 offset = vec3(0,-2.5,-30);
+        vec4 spherePos = sphere+vec4(vec3(i*5,0,0),0);
+        spherePos.xyz += offset;
+        spherePos.y -= 18;
+        spherePos.w = sphere.w*2;
+        float h = sdSphere(p-spherePos.xyz,spherePos.w);
+        if(h<minH)minH = h; 
+    } 
+     
+    return minH; 
+}

@@ -1,0 +1,10 @@
+const float DitherMatrix[16] = { 0.0f,0.5f,0.125f,0.625f, 0.75f,0.22f,0.875f,0.375f, 0.1875f, 0.6875f, 0.0625f, 0.5625f, 0.9375f, 0.4375f, 0.8125f, 0.3125f };
+
+float ditherValue;
+ 
+float GetDitherValue(ivec2 pix)
+{
+    int x = int(pix.x % 4);
+    int y = int(pix.y % 4);
+    return DitherMatrix[x + (y * 4)];
+}

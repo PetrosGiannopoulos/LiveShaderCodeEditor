@@ -1,0 +1,80 @@
+float absorptionTau = 0.003;
+float scatteringTau = 0.03;
+ 
+vec3 absorptionTransmittance(float dist) {
+ 
+    //float absorptionTau = 0.03;
+    vec3 absorptionColor = vec3(0.5);
+    //float scatteringTau = 0.3;
+    return absorptionColor*exp(-dist*(absorptionTau+scatteringTau));
+}
+ 
+ 
+float phaseFunctionHenyeyGreenstein(vec3 inDir, vec3 outDir) {
+    float anisotropy = 0.25;
+    float cosAngle = dot(inDir, outDir) / (length(inDir)*length(outDir));
+    float nom = 1 - anisotropy*anisotropy;
+    float denom = 4 * PI * pow(1 + anisotropy*anisotropy - 2*anisotropy*cosAngle, 1.5);
+    return nom/denom;
+}
+ 
+float GetAngle(vec3 v1, vec3 v2){
+    return acos(dot(v1,v2)/(length(v1)*length(v2)))*(180./PI); 
+}
+ 
+ 
+vec4 rayMarchedLighting(vec3 origin, vec3 dir, in hitinfo info, float shadowsVar){
+   
+    vec3 result = vec3(0);
+   
+    float distLimit = 20; 
+    if(info.type==3){
+        float reverseTanAngle = 1/tan((PI/180)*GetAngle(lightPos.xyz-origin,dir));
+        vec3 eDir = (lightPos.xyz-origin)-(dir*length(lightPos.xyz-origin)*reverseTanAngle);
+        info.p = lightPos.xyz-eDir;
+    }
+    
+    vec3 camToFrag = info.p-origin;
+    float scatteringZFar = MAX_SCENE_BOUNDS;
+    int scatteringSamples = 70;
+    vec3 scatteringColor = vec3(1);
+    if(length(camToFrag)>scatteringZFar){
+        camToFrag = normalize(origin-info.p);
+    }
+    vec3 deltaStep = camToFrag/(scatteringSamples+1);
+    vec3 FragToCamNorm = normalize(origin-info.p);
+    vec3 x = origin;
+    
+    // Randomize the sampling points along the ray to trade flickering
+    // for plain noise
+    float rand = random(info.p.xy+info.p.z);
+    x += (deltaStep*rand);
+ 
+     
+     
+    //float shadowsVar = 0.0;
+    float lightIntensity = 7000;
+    vec3 lightColor = vec3(0.99,0.95,0.5);
+    for(int i = 0; i < scatteringSamples; ++i) {
+        float visibility = 1.0 - shadowsVar;
+        vec3 lightToX = x - lightPos.xyz;
+        float angle = abs(GetAngle(lightToX,vec3(0,1,0)));
+        float angle2 = abs(GetAngle(lightToX, vec3(cos(time),sin(time)*cos(time),sin(time))));
+        if(angle>135 || angle<45)visibility = 0.0;
+        if(angle2>22.5 || angle2<0)visibility = 0.0;
+        
+        if(mod(angle2,20.0)<1)visibility = 0.0;
+        if(mod(angle, 10.0)<1)visibility = 0.0;  
+        float lightDist = length(lightToX);
+        if(lightDist>distLimit)visibility = 0.0;
+        
+        float omega = 4 * PI * lightDist * lightDist;
+        vec3 Lin = absorptionTransmittance(lightDist) * visibility * lightColor * lightIntensity / omega;
+        vec3 Li = Lin * scatteringTau * scatteringColor * phaseFunctionHenyeyGreenstein(normalize(lightToX), FragToCamNorm);
+        result += Li * absorptionTransmittance(distance(x,origin)) * length(deltaStep);
+        x += deltaStep;
+    }
+    
+     
+    return vec4(result,0);
+}

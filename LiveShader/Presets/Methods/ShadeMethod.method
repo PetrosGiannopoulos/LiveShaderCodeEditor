@@ -1,0 +1,90 @@
+vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo i){
+    vec4 finalColor;
+    
+    if(i.type == 3){ 
+       //i.type = 3;
+       i.e = vec4(vec3(1),1);
+       finalColor = texture(skybox, dir);
+       i.lighting = vec4(1);
+       return finalColor; 
+    } 
+    vec3 inDir = dir;
+    vec3 inPoint = i.p;
+    vec4 ambient = vec4(0.7);
+    //i.lighting = vec4(vec3(0),1); 
+    //i.lighting += BlinnPhong(origin, dir, i.n, i.p, vec3(100), lightPos.xyz);
+    //i.lighting += ambient; 
+    
+    vec4 albedo = vec4(0.8);
+    vec4 specular = vec4(vec3(0.6),1);
+    vec4 transmittance = vec4(vec3(0.9),1);
+    if(i.type!= 0 && i.type!= 1 && i.type != 2 && i.type != 5 && i.type!= 6 && i.type!=7){
+        origin = i.p;// + i.n * 0.01;
+        
+        dir = reflect(dir, i.n);
+ 
+        origin = origin + dir*0.001;
+        i.e *= specular;
+    }
+     
+    if(i.type == 1|| i.type == 5){
+        float ior = 1.125;
+        float air = 1.00029;
+        if(i.type==5)ior = 1.1921; 
+        if(i.refl==1){
+            origin = i.p+dir*0.001;
+            
+            //if(n1/n2*sin(theta1)>1) cannot refract 
+            float fresnel; 
+             
+            if(i.reflOrder==1){
+                fresnel = FresnelReflectAmount(air,ior,i.n,dir);
+                if(fresnel<1){
+                    dir = refract(dir, i.n, air/ior);
+                    i.reflOrder = -1;
+                    i.entryPoint = i.p;
+                }
+                else {
+                    dir = reflect(dir,i.n);
+                    i.pTIR = origin;
+                    i.p -= dir*0.001;
+                    i.extraPath += length(origin-i.p); 
+                } 
+            }
+            else{
+                fresnel = FresnelReflectAmount(ior,air,i.n,dir); 
+                if(fresnel<1){
+                    dir = refract(dir, i.n,ior/air);
+                    i.reflOrder = 1; 
+                    i.exitPoint = i.p;
+                  
+                }
+                else {
+                    dir = reflect(dir,i.n);
+                    i.pTIR = origin;
+                    i.p = i.p-dir*0.001;
+                    i.extraPath += length(origin-i.p); 
+                } 
+            }
+             
+            if(fresnel<1)i.e *= transmittance;//(1-fresnel); 
+        }
+        else{
+            origin = i.p+i.n*0.001;
+            //dir = reflect(dir, i.n);
+            float fresnel = FresnelReflectAmount(air,ior,i.n,dir);
+            dir = reflect(dir, i.n);
+            i.e *= specular;//fresnel;
+            i.exitPoint = i.p;
+        }
+    }
+ 
+    //i.lighting += BlinnPhong(origin, dir, i.n, i.p,vec3(1)); 
+    float dif = clamp(dot(i.n,normalize(lightPos.xyz)),0,1); 
+    finalColor = vec4(vec3(0),1);
+    //i.lighting += BlinnPhong(origin, dir, i.n, i.p, vec3(1),lightPos.xyz); 
+    //finalColor = vec4(vec3(0),1)*dif;
+    //finalColor = clamp(dot(i.n, lightPos.xyz)*(-1),0,1)*lightPos.w*albedo;
+ 
+    return finalColor;
+}

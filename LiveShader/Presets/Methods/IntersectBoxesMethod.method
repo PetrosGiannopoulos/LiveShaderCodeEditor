@@ -1,0 +1,52 @@
+bool intersectBox(vec3 origin, vec3 dir, const box b, inout vec2 lambda, inout hitinfo info) {
+    vec3 tMin = (b.min - origin) / dir;
+    vec3 tMax = (b.max - origin) / dir;
+    vec3 t1 = min(tMin, tMax);
+    vec3 t2 = max(tMin, tMax);
+    float tNear = max(max(t1.x, t1.y), t1.z);
+    float tFar = min(min(t2.x, t2.y), t2.z);
+    vec2 ts = vec2(tNear, tFar);
+    
+    bool found = false; 
+    found = (ts.x>=0.0) && (ts.x<=ts.y) && ts.x<info.t;
+    //if(tNear<info.t && found)info.t = tNear;
+    lambda = ts;
+    return found;
+}
+ 
+bool intersectBoxes(inout vec3 origin, inout vec3 dir, inout hitinfo info) {
+    bool found = false;
+    vec2 lambda;
+    for (int i = 0; i < NUM_BOXES; i++) {
+ 
+        box pos = boxes[i];
+        
+        if(i==1){
+            vec3 offset = cube.xyz+vec3(0,-2.5,-30);
+            pos.min = offset-cube.w*0.5;
+            pos.max = offset+cube.w*0.5;
+        }
+        if(i==2){
+            vec3 offset = mirror.xyz+vec3(0,-2.5,-30);
+            pos.min.x = offset.x;
+            pos.min.yz = offset.yz-mirror.w*0.5;
+            pos.max.yz = offset.yz+mirror.w*0.5;
+            pos.max.x = pos.min.x+0.1;
+        }
+        //vec2 lambda = intersectBox(origin, dir, pos);
+        //if (lambda.x > 0.0 && lambda.x < lambda.y && lambda.x < smallest) {
+        bool bo = intersectBox(origin, dir, pos, lambda,info);
+        if(bo){
+            info.t = lambda.x;
+            found = true;
+            info.type = 0;
+            if(i==1)info.type = 1;
+            if(i==2)info.type = 4;
+            
+        
+        }
+        //break;
+        
+    }
+    return found;
+}

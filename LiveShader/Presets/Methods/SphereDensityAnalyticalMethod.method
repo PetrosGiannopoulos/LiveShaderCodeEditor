@@ -1,0 +1,63 @@
+float sphDensity( vec3  origin, vec3  dir,   // ray origin, ray direction
+                  vec3  sc, float sr,   // sphere center, sphere radius
+                  float dbuffer, inout hitinfo info )       // depth buffer
+{
+    // dbuffer = MAX_SCENE_BOUNDS
+    // only mix current color with volume color if result >0.0
+    // normalize the problem to the canonical sphere
+    float ndbuffer = dbuffer / sr;
+    hitinfo tinfo;
+    tinfo.t = MAX_SCENE_BOUNDS;
+    //tinfo.t2 = MAX_SCENE_BOUNDS;
+     
+    bool co = intersectCappedCone(origin,dir, lightPos.xyz, lightPos.xyz-vec3(0,-4,0),0.01,5,tinfo); 
+    
+    /*vec3  rc = (origin - sc)/sr;
+    
+    // find intersection with sphere
+    float b = dot(dir,rc);
+    float c = dot(rc,rc) - 1.0;
+    float h = b*b - c;
+ 
+    // not intersecting
+    if( h<0.0 ) return 0.0;
+    
+    h = sqrt( h );
+    
+    //return h*h*h;
+ 
+    float t1 = -b - h;
+    float t2 = -b + h;*/
+ 
+    if(co==false)return 0.0;
+    
+    if(tinfo.t>0.0 && tinfo.t<info.t){
+        info.t = tinfo.t;
+        info.p = origin+dir*info.t;
+        info.n = tinfo.n;
+        info.type = 7;
+        return 1.0;
+    } 
+    //info.t = tinfo.t;
+    //info.t2 = tinfo.t2;
+     
+    return 0.0; 
+    float t1 = tinfo.t;
+    float t2 = tinfo.t2;
+    vec3 rc = (origin-sc)/sr;
+    float b = dot(dir,rc);
+    float c = dot(rc,rc)-1.0;
+ 
+    // not visible (behind camera or behind ndbuffer)
+    if( t2<0.0 || t1>ndbuffer ) return 0.0; 
+     
+    // clip integration segment from camera to ndbuffer
+    t1 = max( t1, 0.0 );
+    t2 = min( t2, ndbuffer );
+ 
+    // analytical integration of an inverse squared density
+    float i1 = -(c*t1 + b*t1*t1 + t1*t1*t1/3.0);
+    float i2 = -(c*t2 + b*t2*t2 + t2*t2*t2/3.0);
+    float res = (i2-i1)*(3.0/4.0);  
+    return res;
+}

@@ -1,0 +1,84 @@
+vec4 trace(inout vec3 origin, inout vec3 dir, out bool hitAnything, inout hitinfo i) {
+    
+    vec4 colorRes = vec4(0);
+    hitAnything = false;
+    //i.t = MAX_SCENE_BOUNDS;
+    i.type = -1; 
+    i.hasShadows = false; 
+    
+    if (intersectBoxes(origin,dir, i)) {
+        hitAnything = true;
+        vec3 po = origin+dir*i.t;
+        vec2 boxUV = vec2(0);
+        i.p = po; 
+ 
+        if(i.type==1){
+            i.n = normalize(po-cube.xyz-vec3(0,-2.5,-30));
+            boxUV = uvCube(i.n);
+            colorRes = texture(diffuseTexture, boxUV);
+            
+        }
+        else if(i.type==4){
+            boxUV = uvPlane(po, vec3(0,1,0))*0.1;
+            i.n = vec3(-1,0,0);
+            if(origin.x>po.x)i.n *= -1;
+        }
+        else{
+            boxUV = uvPlane(po, vec3(0,1,0))*0.1;
+            i.n = vec3(0,1,0);
+            if(origin.y<po.y)i.n *= -1;
+            i.type = 0;
+            
+        }
+        i.hasShadows = true; 
+        
+        colorRes = texture(diffuseTexture,boxUV);
+        
+    }
+      
+    if(intersectTriangles(origin,dir,i)){
+        hitAnything = true;
+ 
+        vec3 po = origin+dir*i.t;
+        i.p = po;
+        i.type = 5;
+        colorRes = vec4(0,0,1,1);
+    }
+     
+     
+     
+    if(intersectSpheres(origin,dir,i)){
+        hitAnything = true;
+ 
+        //vec3 po = origin+dir*i.t;
+        //i.p = po;
+        i.type = 2;
+        //i.n = normalize(po-sphere.xyz-vec3(0,-2.5,-30));
+        vec2 uvsphr = uvSphere(i.n)*10;
+        //colorRes = texture(diffuseTexture,uvsphr);
+        colorRes = vec4(i.n*0.5+0.5,0);//vec4(1,0,0,1);
+        //i.hasShadows = true;
+        i.hasShadows = true;
+        
+    }
+    //i.t = MAX_SCENE_BOUNDS;
+    
+    //light ball 
+    if(IntersectSphere(origin, dir, i, vec4(lightPos.xyz,0.3))){
+       hitAnything = true;
+       vec3 po = origin+dir*i.t;
+       i.p = po;
+       i.n = normalize(po-lightPos.xyz);
+       //colorRes = vec4(i.n*0.5+0.5,0);
+       colorRes = vec4(0.99,0.94,0.5,1);
+       i.type = 6;
+       i.hasShadows = false; 
+    }
+     
+    if(hitAnything == false)i.type = 3;
+     
+    i.color = colorRes; 
+ 
+    return colorRes;
+  
+}

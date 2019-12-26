@@ -50,6 +50,8 @@ public:
 
 	int oldLeftArrowKeyState;
 
+	int oldRightMouseButtonState;
+
 	glm::vec2 caretPos;
 
 	unsigned int computeShaderTexture;
@@ -108,6 +110,8 @@ public:
 	};
 
 	vector<SelectionBox> selectionBoxData;
+
+	bool isPopupOpened = false;
 
 public:
 
@@ -359,6 +363,7 @@ public:
 		screenShader.setVec2("minSelectedArea",minSelectedArea);
 		screenShader.setVec2("maxSelectedArea",maxSelectedArea);
 
+		screenShader.setBool("isPopupOpened", isPopupOpened);
 		//set caretPos
 		codeEditor.caretPos = caretPos;
 
@@ -488,6 +493,7 @@ public:
 		}
 
 		int newLeftMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+		int newRightMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 		if (newLeftMouseButtonState == GLFW_RELEASE && oldLeftMouseButtonState == GLFW_PRESS) {
 			//cout << "mouse pressed" << endl;
 
@@ -495,6 +501,7 @@ public:
 
 			glfwGetCursorPos(window, &x, &y);
 			isPressSelected = false;
+			isPopupOpened = false;
 			if (pressCoords.x == x && pressCoords.y == (y + 25)) {
 				
 				isDragSelected = false;
@@ -554,7 +561,12 @@ public:
 			changedYState = false;
 		}
 
+		if (newRightMouseButtonState == GLFW_PRESS && oldRightMouseButtonState == GLFW_RELEASE) {
+			isPopupOpened = true;
+		}
+
 		oldLeftMouseButtonState = newLeftMouseButtonState;
+		oldRightMouseButtonState = newRightMouseButtonState;
 		
 		/*int newLeftArrowKeyState = glfwGetKey(window, GLFW_KEY_LEFT);
 		if (newLeftArrowKeyState == GLFW_PRESS && oldLeftArrowKeyState != GLFW_PRESS) {

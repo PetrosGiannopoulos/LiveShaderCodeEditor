@@ -18,7 +18,7 @@ void main()
      //hdrColor = pow(hdrColor, vec3(1.0/2.2));
 
 	//FragColor = vec4();
-	if(color.w == 0.5){
+    if(color.w == 0.5){
 	
 		vec3 hdrColor = vec3(0.0, 0.0, 0.0);
 		vec2 pixelSize = 1.0 / textureSize(ssaoInput, 0);

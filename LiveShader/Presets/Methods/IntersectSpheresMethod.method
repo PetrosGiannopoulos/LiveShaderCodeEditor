@@ -1,0 +1,56 @@
+bool IntersectSphere(vec3 origin,vec3 dir, inout hitinfo info, vec4 pos){
+ 
+    bool found = false;
+    // Calculate distance along the ray where the sphere is intersected
+    vec3 d = origin - pos.xyz;
+    float b = dot(dir, d);
+    float c = dot(d, d) - pos.w * pos.w;
+   
+    float t = b*b-c;
+    if (t >= 0.0)
+    {
+        float t = -b-sqrt(t);
+        //float t2 = -b+sqrt(t);
+        
+        //t = t1<t2 ? t1 : t2; 
+        found = (t>=0.0) && (t < info.t);
+        if(found)info.t = t;
+        //info.t = t;
+        //found = (t1>=0.0) && (t1< info.t);
+        //t = t1; 
+        //info.t = t1; 
+    
+    }
+ 
+    return found;
+}
+ 
+bool intersectSpheres(vec3 origin, vec3 dir, inout hitinfo info){
+    bool found = false;
+    hitinfo tinfo;
+    tinfo.t = info.t;
+    
+ 
+    vec3 offset = vec3(0, -2.5, -30);
+    for(int i=0;i<5;i++){
+        vec4 spherePos = sphere+vec4(vec3(i*5,0,0),0);
+        spherePos.xyz += offset;
+        spherePos.y -= 18;
+        spherePos.w = sphere.w*2;
+        //hitinfo tinfo;
+        bool so = IntersectSphere(origin, dir, tinfo,spherePos);
+        
+        if(so){
+                 
+                info.t = tinfo.t;
+                //info.t = smin(info.t,tinfo.t); 
+                vec3 po = origin+dir*info.t; 
+                info.p = po;
+                info.n = normalize(po-spherePos.xyz); 
+                found = true; 
+        }    
+         
+    }
+ 
+    return found; 
+}

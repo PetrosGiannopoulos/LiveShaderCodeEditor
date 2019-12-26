@@ -17,6 +17,7 @@ uniform vec2 minSelectedArea;
 uniform vec2 maxSelectedArea;
 
 uniform bool isSelected;
+uniform bool isPopupOpened;
 
 struct SelectionBox{
 	vec2 minPoint;
@@ -122,4 +123,12 @@ void main()
 		FragColor = mix(FragColor,vec4(0,1,0,1),0.5);
 	}
 	*/
+
+	//popup menu
+	if(isPopupOpened){
+		if((gl_FragCoord.x>200 && gl_FragCoord.x<300) && (gl_FragCoord.y<500 && gl_FragCoord.y>400)){
+			FragColor = mix(FragColor,vec4(0.4,0.6,0.84,1),0.4);
+		}
+	}
+
 }
