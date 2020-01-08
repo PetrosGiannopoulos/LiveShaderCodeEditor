@@ -12,6 +12,7 @@ uniform float width;
 uniform float height;
 
 uniform vec2 caretPos;
+uniform vec2 mousePos;
 
 uniform vec2 minSelectedArea;
 uniform vec2 maxSelectedArea;
@@ -125,15 +126,34 @@ void main()
 		FragColor = mix(FragColor,vec4(0,1,0,1),0.5);
 	}
 	*/
+	float popup_borderWidth = 1;
 
 	//popup menu
 	if(isPopupOpened){
 		if((gl_FragCoord.x>popupPos.x && gl_FragCoord.x<(popupPos.x+300)) && (gl_FragCoord.y>(popupPos.y-200) && gl_FragCoord.y<popupPos.y)){
 
-
-			float v = (gl_FragCoord.y-popupPos.y)*(1)/(200);
-			FragColor = mix(FragColor,vec4(0.9,0.9,0.74,1),0.4-v);
+			float bdiffx = abs(gl_FragCoord.x-popupPos.x);
+			if(bdiffx<popup_borderWidth)FragColor = vec4(0,0,0,1);
+			float bdiffx2 = abs(gl_FragCoord.x-popupPos.x-300);
+			if(bdiffx2<popup_borderWidth)FragColor = vec4(0,0,0,1);
+			float bdiffy = abs(gl_FragCoord.y-popupPos.y);
+			if(bdiffy<popup_borderWidth)FragColor= vec4(0,0,0,1);
+			float bdiffy2 = abs(gl_FragCoord.y-popupPos.y+200);
+			if(bdiffy2<popup_borderWidth)FragColor = vec4(0,0,0,1);
+			//float v = (gl_FragCoord.y-popupPos.y)*(1)/(200);
+			//FragColor = mix(FragColor,vec4(0.6,0.7,0.84,1),0);
 			//FragColor = vec4(0.4,0.6,0.81,1);
+
+			float rdiffY = abs(popupPos.y-mousePos.y);
+			int mdiffY = int((rdiffY/lineHeight));
+			float cy = popupPos.y - mdiffY*lineHeight;
+			float cdiffY = abs(gl_FragCoord.y-cy);
+
+			bool inside = (mousePos.x>popupPos.x && mousePos.x<(popupPos.x+300)) && (mousePos.y>(popupPos.y-200) && mousePos.y<popupPos.y);
+			if(cdiffY < lineHeight*0.5 && inside){
+			
+				FragColor = mix(FragColor, vec4(0.63,0.67,0.93,1),0.5);
+			}
 		}
 	}
 

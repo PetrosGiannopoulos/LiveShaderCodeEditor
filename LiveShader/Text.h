@@ -231,7 +231,7 @@ public:
 
 			for (int i = 0; i < N; i++) {
 				vector<int> keywordType;
-				RenderText(width, textShader, popupText[i], keywordType, popupX, height - (popupY + i*(rows + fontSize*0.5)), 1.0f, glm::vec3(0.14, 0.33, 0.07), 2);
+				RenderText(width, textShader, popupText[i], keywordType, popupX, height - (popupY + i*(rows + fontSize*0.5)), 1.0f, glm::vec3(0.14, 0.33, 0.67), 2);
 			}
 		}
 

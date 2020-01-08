@@ -53,6 +53,7 @@ public:
 	int oldRightMouseButtonState;
 
 	glm::vec2 caretPos;
+	glm::vec2 mousePos;
 
 	unsigned int computeShaderTexture;
 	CShader computeShader;
@@ -372,6 +373,7 @@ public:
 		codeEditor.caretPos = caretPos;
 
 		screenShader.setVec2("caretPos", codeEditor.caretPos);
+		screenShader.setVec2("mousePos",mousePos);
 		glDisable(GL_DEPTH_TEST);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, codeScreenTexture);
@@ -610,6 +612,8 @@ public:
 
 			lastX = xpos;
 			lastY = ypos;
+
+			mousePos = glm::vec2(xpos,mode->height-ypos-25);
 			if (displayMode) camera.ProcessMouseMovement(xoffset, yoffset);
 
 			if (isPressSelected) {
