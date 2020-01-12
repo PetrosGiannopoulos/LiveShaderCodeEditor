@@ -507,7 +507,7 @@ public:
 
 			glfwGetCursorPos(window, &x, &y);
 			isPressSelected = false;
-			isPopupOpened = false;
+			
 			if (pressCoords.x == x && pressCoords.y == (y + 25)) {
 				
 				isDragSelected = false;
@@ -515,7 +515,7 @@ public:
 				codeEditor.isSelectionOn = false;
 			}
 			
-			if (codeEditor.searchingLine == false) {
+			if (codeEditor.searchingLine == false && isPopupOpened==false) {
 				
 				caretPos = glm::vec2(x,y+25);
 				//caretPos = glm::vec2(x*2-5,y);
@@ -529,6 +529,19 @@ public:
 				
 				
 			}
+
+			if (isPopupOpened) {
+
+				float rdiffY = abs(codeEditor.popupPos.y - mousePos.y);
+				int popupChoice = int((rdiffY / codeEditor.getLineHeight()));
+				//cout << "popupChoice: " << popupChoice << endl;
+
+				codeEditor.pickChoice(popupChoice, window);
+
+				isPopupOpened = false;
+			}
+
+			
 		}
 
 		if (newLeftMouseButtonState == GLFW_PRESS && oldLeftMouseButtonState != GLFW_PRESS) {

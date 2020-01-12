@@ -15,6 +15,7 @@ public:
 	vector<string> codeText;
 	vector<string> copyText;
 	vector<string> popupText;
+	vector<string> methodPaths;
 	vector<vector<bool>> selectedCharacters;
 
 	Shader textShader, *screenShader;
@@ -81,6 +82,7 @@ public:
 		scrollX = 0;
 
 		fillPopupText();
+		fillMethodPaths();
 		
 	}
 
@@ -115,6 +117,20 @@ public:
 		popupText.push_back("Intersect Triangle/Triangles Method");
 		popupText.push_back("Frensel Reflect Amount Method");
 
+	}
+
+	void fillMethodPaths() {
+
+		methodPaths.push_back("Presets/Methods/CastRayMethod.method");
+		methodPaths.push_back("Presets/Methods/TraceMethod.method");
+		methodPaths.push_back("Presets/Methods/ShadeMethod.method");
+		methodPaths.push_back("Presets/Methods/DistanceMapMethod.method");
+		methodPaths.push_back("Presets/Methods/BlinnPhongModelMethod.method");
+		methodPaths.push_back("Presets/Methods/RayMarchedLightingMethod.method");
+		methodPaths.push_back("Presets/Methods/IntersectBoxesMethod.method");
+		methodPaths.push_back("Presets/Methods/IntersectSpheresMethod.method");
+		methodPaths.push_back("Presets/Methods/IntersectTrianglesMethod.method");
+		methodPaths.push_back("Presets/Methods/FresnelReflectAmountMethod.method");
 	}
 
 	glm::vec2 initCaretPos(int height) {
@@ -552,10 +568,69 @@ public:
 		}
 	}
 
+	void pickChoice(int choice, GLFWwindow *window) {
+
+		string path = methodPaths[choice-1];
+
+		std::ifstream methodFile;
+		string methodCode;
+
+		// ensure ifstream objects can throw exceptions:
+		methodFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		try
+		{
+			// open files
+			methodFile.open(path);
+
+			std::stringstream cShaderStream;
+			// read file's buffer contents into streams
+			cShaderStream << methodFile.rdbuf();
+
+			// close file handlers
+			methodFile.close();
+
+			// convert stream into string
+			methodCode = cShaderStream.str();
+
+
+		}
+		catch (std::ifstream::failure e)
+		{
+			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		}
+
+		glfwSetClipboardString(window, methodCode.c_str());
+
+		int counter = 0;
+		copyText.clear();
+		string line;
+
+		for (int i = 0; i < methodCode.length(); i++) {
+
+			if (methodCode[i] == '\n') {
+				if (line.length() == 0)line += ' ';
+				copyText.push_back(line);
+				line.clear();
+				continue;
+			}
+
+			if (methodCode[i] == '\t') {
+				for (int i = 0; i < 4; i++) {
+					line += ' ';
+				}
+			}
+			else {
+				line += methodCode[i];
+			}
+		}
+		copyText.push_back(line);
+		pasteSelection();
+	}
+
 	void getSystemClipboardText(GLFWwindow *window) {
 		string s = glfwGetClipboardString(window);
 
-		cout << s << endl;
+		//cout << s << endl;
 		int counter = 0;
 		copyText.clear();
 		string line;
