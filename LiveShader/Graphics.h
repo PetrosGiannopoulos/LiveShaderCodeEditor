@@ -537,6 +537,7 @@ public:
 				//cout << "popupChoice: " << popupChoice << endl;
 
 				codeEditor.pickChoice(popupChoice, window);
+				caretPos = codeEditor.caretPos;
 
 				isPopupOpened = false;
 			}

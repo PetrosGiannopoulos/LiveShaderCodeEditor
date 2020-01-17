@@ -628,7 +628,10 @@ public:
 	}
 
 	void getSystemClipboardText(GLFWwindow *window) {
-		string s = glfwGetClipboardString(window);
+		string s;
+		if (glfwGetClipboardString(window) != NULL)s = glfwGetClipboardString(window);
+		else { s = ""; return; }
+		
 
 		//cout << s << endl;
 		int counter = 0;
@@ -888,6 +891,7 @@ public:
 			// Iterate through all characters
 			std::string::const_iterator c;
 			int counter = 0;
+			if (text == "")text = " ";
 			for (c = text.begin(); c != text.end(); c++){
 
 				
@@ -917,6 +921,7 @@ public:
 		string text = codeText[minIY];
 		std::string::const_iterator c;
 		int counter = 0;
+		if (text == "")text = " ";
 		for (c = text.begin(); c != text.end(); c++) {
 			Character ch = Characters[*c];
 
@@ -942,8 +947,10 @@ public:
 		Character lch = Characters[text[text.length() - 1]];
 
 		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
-			minX += ((lch.Advance >> 6)*scale);
-			minIX++;
+			if (text != " ") {
+				minX += ((lch.Advance >> 6)*scale);
+				minIX++;
+			}
 		}
 
 
@@ -979,6 +986,7 @@ public:
 			// Iterate through all characters
 			std::string::const_iterator c;
 			int counter = 0;
+			if (text == "")text = " ";
 			for (c = text.begin(); c != text.end(); c++) {
 
 
@@ -1008,6 +1016,7 @@ public:
 		string text = codeText[minIY];
 		std::string::const_iterator c;
 		int counter = 0;
+		if (text == "")text = " ";
 		for (c = text.begin(); c != text.end(); c++) {
 			Character ch = Characters[*c];
 
@@ -1033,8 +1042,10 @@ public:
 		Character lch = Characters[text[text.length() - 1]];
 
 		if (minIX == (text.length() - 1) && pos.x >= (minX + ((lch.Advance >> 6)*scale))) {
-			minX += ((lch.Advance >> 6)*scale);
-			minIX++;
+			if (text != " ") {
+				minX += ((lch.Advance >> 6)*scale);
+				minIX++;
+			}
 		}
 
 		//caretPosI = glm::vec2(minIX, minIY);
@@ -1213,6 +1224,7 @@ public:
 		float x = startX;
 		float y = caretPos.y;
 		std::string::const_iterator c;
+		if (plineText == "")plineText = " ";
 		for (c = plineText.begin(); c != plineText.end(); c++) {
 			Character ch = Characters[*c];
 
@@ -1260,6 +1272,7 @@ public:
 		float x = startX;
 		float y = caretPos.y;
 		std::string::const_iterator c;
+		if (nlineText == "")nlineText = " ";
 		for (c = nlineText.begin(); c != nlineText.end(); c++) {
 			Character ch = Characters[*c];
 
