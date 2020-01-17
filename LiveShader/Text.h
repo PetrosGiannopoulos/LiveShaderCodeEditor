@@ -816,6 +816,17 @@ public:
 			caretPos.y = fromXY.y;
 			caretPosI.x = from.x;
 			caretPos.x = fromXY.x;
+
+			if (from.y == to.y) {
+				if (from.x <= to.x) {
+					caretPosI.x = from.x;
+					caretPos.x = fromXY.x;
+				}
+				else {
+					caretPosI.x = to.x;
+					caretPos.x = toXY.x;
+				}
+			}
 		}
 		else {
 			caretPosI.y = to.y;
