@@ -110,7 +110,7 @@ public:
 		}
 	}
 
-	void undoAction() {
+	glm::vec2 undoAction() {
 		
 		if (actionList.empty()==false && maxActions>0) {
 
@@ -121,17 +121,34 @@ public:
 			vector<string> blockText;
 			int x, y;
 
+			Character ch;
+			float scale = 1;
+			
+
 			switch (lastActionType) {
 				case Action::ACTION_TYPE::CHAR_ADD:
 
 					y = lastAction.from.y;
 					x = lastAction.from.x-1;
 
+					//fix caret pos
+					ch = Characters[lastAction.blockText[0][0]];
+					caretPos.x -= (ch.Advance >> 6)*scale;
+					caretPosI.x--;
+
 					codeText[y].erase(x,1);
 					maxActions--;
+
 					break;
 				case Action::ACTION_TYPE::CHAR_DEL:
 
+
+					y = lastAction.from.y;
+					x = lastAction.from.x;
+
+					codeText[y].insert(x, 1, lastAction.blockText[0][0]);
+
+					maxActions--;
 
 					break;
 				case Action::ACTION_TYPE::PASTE_BLOCK:
@@ -141,7 +158,7 @@ public:
 			};
 
 		}
-
+		return caretPos;
 	}
 
 	void fillPopupText() {
@@ -1372,14 +1389,15 @@ public:
 
 	glm::vec2 deleteCharacter() {
 
-		codeText[caretPosI.y].erase(caretPosI.x,1);
-
 		//add action to list
 		Action action = Action();
 		action.setActionProperties(Action::ACTION_TYPE::CHAR_DEL, caretPosI, caretPosI, codeText[caretPosI.y][caretPosI.x]);
 		if (actionList.size() <= maxActions)actionList.push_back(action);
 		else actionList[maxActions] = action;
 		maxActions++;
+
+		codeText[caretPosI.y].erase(caretPosI.x,1);
+
 
 		return caretPos;
 

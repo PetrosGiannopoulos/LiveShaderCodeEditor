@@ -26,7 +26,9 @@ public:
 		this->actionType = actionType;
 		this->from = from;
 		this->to = to;
-		string charStr = "" + charText;
+		string charStr = "";
+		charStr += charText;
+		//cout << charStr << ": " << charText << endl;
 		this->blockText.push_back(charStr);
 	}
 	

@@ -897,7 +897,8 @@ public:
 					//ctrl+z
 
 					//TODO: undo action
-					codeEditor.undoAction();
+					caretPos = codeEditor.undoAction();
+					codeEditor.clearSelectedChars();
 				}
 				break;
 			case 263:
