@@ -892,6 +892,14 @@ public:
 					codeEditor.clearSelectedChars();
 				}
 				break;
+			case 90:
+				if (mods == GLFW_MOD_CONTROL) {
+					//ctrl+z
+
+					//TODO: undo action
+					codeEditor.undoAction();
+				}
+				break;
 			case 263:
 
 				//left arrow button

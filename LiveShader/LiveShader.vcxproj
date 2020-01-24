@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CShader.h" />
     <ClInclude Include="Graphics.h" />

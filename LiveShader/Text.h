@@ -7,10 +7,13 @@
 #include <freetype\ftglyph.h>
 #include <iostream>
 #include <fstream>
+#include "Action.h"
 
 class Text {
 
 public:
+
+	
 
 	vector<string> codeText;
 	vector<string> copyText;
@@ -47,6 +50,9 @@ public:
 	int selectionScrollY;
 	bool isSelectionOn = false;
 	bool isPopupOpened = false;
+
+	vector<Action> actionList;
+	int maxActions = 0;
 
 public:
 
@@ -102,6 +108,40 @@ public:
 			for (int l = 0; l < L; l++) { selectedChars.push_back(false); }
 			selectedCharacters.push_back(selectedChars);
 		}
+	}
+
+	void undoAction() {
+		
+		if (actionList.empty()==false && maxActions>0) {
+
+			
+			Action lastAction = actionList[maxActions-1];
+			Action::ACTION_TYPE lastActionType = lastAction.retrieveActionType();
+
+			vector<string> blockText;
+			int x, y;
+
+			switch (lastActionType) {
+				case Action::ACTION_TYPE::CHAR_ADD:
+
+					y = lastAction.from.y;
+					x = lastAction.from.x-1;
+
+					codeText[y].erase(x,1);
+					maxActions--;
+					break;
+				case Action::ACTION_TYPE::CHAR_DEL:
+
+
+					break;
+				case Action::ACTION_TYPE::PASTE_BLOCK:
+					break;
+				default:
+					break;
+			};
+
+		}
+
 	}
 
 	void fillPopupText() {
@@ -1320,12 +1360,26 @@ public:
 		caretPos.x += (ch.Advance >> 6)*scale;
 		caretPosI.x++;
 
+		//add action to list
+		Action action = Action();
+		action.setActionProperties(Action::ACTION_TYPE::CHAR_ADD, caretPosI,caretPosI, c);
+		if(actionList.size()<=maxActions)actionList.push_back(action);
+		else actionList[maxActions] = action;
+		maxActions++;
+
 		return caretPos;
 	}
 
 	glm::vec2 deleteCharacter() {
 
 		codeText[caretPosI.y].erase(caretPosI.x,1);
+
+		//add action to list
+		Action action = Action();
+		action.setActionProperties(Action::ACTION_TYPE::CHAR_DEL, caretPosI, caretPosI, codeText[caretPosI.y][caretPosI.x]);
+		if (actionList.size() <= maxActions)actionList.push_back(action);
+		else actionList[maxActions] = action;
+		maxActions++;
 
 		return caretPos;
 
