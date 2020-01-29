@@ -21,6 +21,8 @@ public:
 	vector<string> methodPaths;
 	vector<vector<bool>> selectedCharacters;
 
+	vector<string> erasedText;
+
 	Shader textShader, *screenShader;
 
 	struct Character {
@@ -118,11 +120,15 @@ public:
 			Action lastAction = actionList[maxActions-1];
 			Action::ACTION_TYPE lastActionType = lastAction.retrieveActionType();
 
-			vector<string> blockText;
 			int x, y;
 
 			Character ch;
 			float scale = 1;
+			
+			glm::vec2 from, to;
+			int lineDiff, undoY,N;
+			vector<string> erText;
+			int erDiff;
 			
 
 			switch (lastActionType) {
@@ -152,6 +158,38 @@ public:
 
 					break;
 				case Action::ACTION_TYPE::PASTE_BLOCK:
+
+					
+					from = lastAction.from;
+					to = lastAction.to;
+
+					lineDiff = (int)(to.y - from.y);
+
+					//cout << lineDiff << endl;
+					erText = lastAction.erasedText;
+					erDiff = erText.size();
+					
+					for (int i = 0; i < erDiff;i++) {
+						string undoLine = erText[i];
+						codeText[(int)from.y + i] = undoLine;
+					}
+
+					for (int i = 0; i < lineDiff;i++) {
+						string undoLine = lastAction.blockText[i];
+						codeText[(int)from.y + i+erDiff] = undoLine;
+						//cout << undoLine << endl;
+					}
+
+					//move lines lineDiff lines up after from.y+lineDiff
+					N = codeText.size();
+					for (int i = int(from.y + lineDiff+erDiff); i < N-lineDiff;i++) {
+
+						codeText[i] = codeText[i+lineDiff];
+
+					}
+
+
+					maxActions--;
 					break;
 				default:
 					break;
@@ -730,6 +768,21 @@ public:
 
 		if (lineDiff == 0)return;
 
+		//copy lines for undo
+		vector<string> undoLines;
+		for (int i = 0; i < lineDiff;i++) {
+			string undoLine = codeText[y+i];
+			undoLines.push_back(undoLine);
+		}
+		Action action = Action();
+		action.setActionProperties(Action::ACTION_TYPE::PASTE_BLOCK, caretPosI, glm::vec2(x,y+lineDiff-1), undoLines);
+		action.setErasedText(erasedText);
+		if (actionList.size() <= maxActions)actionList.push_back(action);
+		else actionList[maxActions] = action;
+		maxActions++;
+		
+		
+
 		//copy text before caretPosI.x
 
 		string firstLine = codeText[y];
@@ -752,7 +805,7 @@ public:
 		for (int i = 0; i < lineDiff;i++) {
 			string currentString = copyText[i];
 			int N = currentString.length();
-			if(i==0)for (int j = 0; j < N;j++) insertCharacter(currentString[j]);
+			if(i==0)for (int j = 0; j < N;j++) insertCharacter(currentString[j],false);
 			else {
 				if (i == lineDiff - 1)currentString += cpyStr;
 				codeText.insert(codeText.begin() + caretPosI.y + i, currentString);
@@ -816,6 +869,7 @@ public:
 
 		if (lineDiff == 0 && lengthDiff == 0)return;
 
+		erasedText.clear();
 		for (int i = 0; i <= lineDiff;i++) {
 			
 			string currentLine = codeText[from.y + i];
@@ -844,6 +898,9 @@ public:
 			//cout << " | " << selectionCounter<< endl;
 			
 			//cout << codeText[from.y + i].substr(selectionStart, selectionCounter) << endl;
+
+			
+			erasedText.push_back(codeText[from.y + i].substr(selectionStart, selectionCounter));
 
 			codeText[from.y + i].erase(selectionStart, selectionCounter);
 
@@ -1369,7 +1426,7 @@ public:
 		return caretPos;
 	}
 
-	glm::vec2 insertCharacter(char c) {
+	glm::vec2 insertCharacter(char c, bool separate=true) {
 
 		codeText[caretPosI.y].insert(caretPosI.x,1,c);
 		Character ch = Characters[c];
@@ -1377,13 +1434,14 @@ public:
 		caretPos.x += (ch.Advance >> 6)*scale;
 		caretPosI.x++;
 
-		//add action to list
-		Action action = Action();
-		action.setActionProperties(Action::ACTION_TYPE::CHAR_ADD, caretPosI,caretPosI, c);
-		if(actionList.size()<=maxActions)actionList.push_back(action);
-		else actionList[maxActions] = action;
-		maxActions++;
-
+		if (separate) {
+			//add action to list
+			Action action = Action();
+			action.setActionProperties(Action::ACTION_TYPE::CHAR_ADD, caretPosI, caretPosI, c);
+			if (actionList.size() <= maxActions)actionList.push_back(action);
+			else actionList[maxActions] = action;
+			maxActions++;
+		}
 		return caretPos;
 	}
 

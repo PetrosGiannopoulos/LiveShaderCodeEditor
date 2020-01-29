@@ -10,6 +10,7 @@ public:
 	glm::vec2 from;
 	glm::vec2 to;
 
+	vector<string> erasedText;
 	vector<string> blockText;
 public:
 
@@ -30,6 +31,10 @@ public:
 		charStr += charText;
 		//cout << charStr << ": " << charText << endl;
 		this->blockText.push_back(charStr);
+	}
+
+	void setErasedText(vector<string> erasedText) {
+		this->erasedText = erasedText;
 	}
 	
 	ACTION_TYPE retrieveActionType() {
