@@ -991,6 +991,7 @@ public:
 	}
 
 	bool eraseSelection() {
+		codeEditor.erasedText.clear();
 		if (codeEditor.isSelectionOn) {
 			isDragSelected = false;
 			isSelected = false;

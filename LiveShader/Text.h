@@ -188,6 +188,11 @@ public:
 
 					}
 
+					//fix caretPos
+					if (codeText[caretPosI.y].size() < caretPosI.x) {
+						caretPosI.x = codeText[caretPosI.y].size();
+						caretPos.x = startX+getLineEndX(glm::vec2(0,caretPosI.y)).x;
+					}
 
 					maxActions--;
 					break;
@@ -869,7 +874,6 @@ public:
 
 		if (lineDiff == 0 && lengthDiff == 0)return;
 
-		erasedText.clear();
 		for (int i = 0; i <= lineDiff;i++) {
 			
 			string currentLine = codeText[from.y + i];
