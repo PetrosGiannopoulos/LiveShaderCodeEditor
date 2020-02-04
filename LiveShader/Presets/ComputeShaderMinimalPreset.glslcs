@@ -76,9 +76,6 @@ struct hitinfo {
     bool hasShadows;
 };
  
-const float PI = 3.14159265359;
-const float infinity = 1./0.;
- 
 int iPixel;
 int numberPerPixel;
  

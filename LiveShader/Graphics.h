@@ -171,7 +171,7 @@ public:
 		caretPos = codeEditor.initCaretPos(mode->height);
 
 
-		computeShader = CShader("Presets/ComputeShaderPreset.glslcs");
+		computeShader = CShader("Presets/ComputeShaderCurrentPreset.glslcs");
 		computeShaderTexture = computeShader.createFrameBufferTexture();
 
 		computeShader.use();
@@ -961,9 +961,9 @@ public:
 		//cout << keycode << endl;
 
 		if (keycode == 96 && displayMode == false) {
-			return;
-			codeEditor.updateFile("Presets/ComputeShaderPreset.glslcs");
-			computeShader = CShader("Presets/ComputeShaderPreset.glslcs");
+			//return;
+			codeEditor.updateFile("Presets/ComputeShaderCurrentPreset.glslcs");
+			computeShader = CShader("Presets/ComputeShaderCurrentPreset.glslcs");
 			computeShaderTexture = computeShader.createFrameBufferTexture();
 
 			computeShader.use();

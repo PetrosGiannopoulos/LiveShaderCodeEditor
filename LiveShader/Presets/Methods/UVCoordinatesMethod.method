@@ -1,3 +1,54 @@
+#version 430 core
+
+#define MAX_SCENE_BOUNDS 10000.0
+
+const float PI = 3.14159265359;
+const float infinity = 1./0.;
+
+uniform vec3 eye;
+uniform vec3 ray00;
+uniform vec3 ray01;
+uniform vec3 ray10;
+uniform vec3 ray11;
+ 
+uniform samplerCube skybox;
+uniform sampler2D diffuseTexture;
+uniform sampler2D ssao;
+uniform sampler2D shadowMap;
+ 
+uniform vec4 sphere;
+uniform vec4 cube;
+uniform vec4 mirror;
+uniform vec4 customModel;
+uniform vec4 lightPos;
+uniform mat4 lightProjection;
+ 
+uniform float gScattering;
+uniform float scatteringAmount;
+uniform float time;
+
+struct hitinfo {
+    vec2 uv;
+    float t;
+    float t2;
+    vec3 n;
+    vec3 p;
+ 
+    int type;
+    int refl;
+    int reflOrder;
+    int refrType;
+    vec4 e;
+    vec4 color;
+    vec4 lighting;
+    vec3 entryPoint;
+    vec3 exitPoint;
+    float extraPath;
+    vec3 pTIR;
+    bool firstTIR;
+    bool hasShadows;
+};
+
 //uv coordinates - Texture processing
 vec2 uvSphere(vec3 p){
  

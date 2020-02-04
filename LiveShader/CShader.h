@@ -59,7 +59,23 @@ public:
 		{
 			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
 		}
-		const char* cShaderCode = computeCode.c_str();
+
+		string uvMappingCode = preLoadMethod("Presets/Methods/UVCoordinatesMethod.method");
+		string noiseCode = preLoadMethod("Presets/Methods/NoiseMethod.method");
+		string intersectBoxesCode = preLoadMethod("Presets/Methods/IntersectBoxesMethod.method");
+		string intersectTrianglesCode = preLoadMethod("Presets/Methods/IntersectTrianglesMethod.method");
+		string intersectSpheresCode = preLoadMethod("Presets/Methods/IntersectSpheresMethod.method");
+		string fresnelReflectAmountCode = preLoadMethod("Presets/Methods/FresnelReflectAmountMethod.method");
+		string distanceMapCode = preLoadMethod("Presets/Methods/DistanceMapMethod.method");
+		string rayMarchedLightingCode = preLoadMethod("Presets/Methods/RayMarchedLightingMethod.method");
+		string blinnPhongModelCode = preLoadMethod("Presets/Methods/BlinnPhongModelMethod.method");
+
+		string intersectCode = intersectBoxesCode + intersectTrianglesCode + intersectSpheresCode;
+
+		//cout << uvMappingCode << endl;
+		string shaderCode = uvMappingCode+noiseCode+intersectCode+fresnelReflectAmountCode+distanceMapCode+rayMarchedLightingCode+blinnPhongModelCode+computeCode;
+
+		const char* cShaderCode = shaderCode.c_str();
 		
 		// 2. compile shaders
 		unsigned int compute;
@@ -102,6 +118,38 @@ public:
 
 		//global group 2147483647, 65535, 65535
 		glUseProgram(0);
+	}
+
+	string preLoadMethod(string methodPath) {
+
+		std::ifstream cMethodFile;
+		string methodCode;
+		// ensure ifstream objects can throw exceptions:
+		cMethodFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		try
+		{
+			// open files
+			cMethodFile.open(methodPath);
+
+			std::stringstream cMethodStream;
+			// read file's buffer contents into streams
+			cMethodStream << cMethodFile.rdbuf();
+
+			// close file handlers
+			cMethodFile.close();
+
+			// convert stream into string
+			methodCode = cMethodStream.str();
+
+
+		}
+		catch (std::ifstream::failure e)
+		{
+			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		}
+
+		return methodCode;
+
 	}
 
 	vector<string> getLines() {

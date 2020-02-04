@@ -670,6 +670,8 @@ public:
 
 	void pickChoice(int choice, GLFWwindow *window) {
 
+		if (choice < 1)return;
+
 		string path = methodPaths[choice-1];
 
 		std::ifstream methodFile;

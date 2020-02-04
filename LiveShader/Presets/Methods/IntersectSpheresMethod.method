@@ -1,3 +1,4 @@
+
 bool IntersectSphere(vec3 origin,vec3 dir, inout hitinfo info, vec4 pos){
  
     bool found = false;

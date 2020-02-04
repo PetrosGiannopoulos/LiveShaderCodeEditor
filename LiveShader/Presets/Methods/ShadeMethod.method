@@ -1,3 +1,4 @@
+
 vec4 shade(inout vec3 origin, inout vec3 dir, in bool hitAnything, inout hitinfo i){
     vec4 finalColor;
     
