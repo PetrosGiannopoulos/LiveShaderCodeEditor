@@ -92,6 +92,50 @@ public:
 		fillPopupText();
 		fillMethodPaths();
 		
+		readScrollY();
+	}
+
+	void readScrollY() {
+		string path = "Presets/config.ini";
+
+		std::ifstream configFile;
+		string configCode;
+
+		// ensure ifstream objects can throw exceptions:
+		configFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		try
+		{
+			// open files
+			configFile.open(path);
+
+			std::stringstream cConfigStream;
+			// read file's buffer contents into streams
+			cConfigStream << configFile.rdbuf();
+
+			// close file handlers
+			configFile.close();
+
+			// convert stream into string
+			configCode = cConfigStream.str();
+
+
+		}
+		catch (std::ifstream::failure e)
+		{
+			std::cout << "ERROR::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		}
+
+		int configInt = stoi(configCode);
+		//cout << configInt << endl;
+		startY = configInt;
+	}
+
+	void writeScrollY() {
+		ofstream configFile;
+		configFile.open("Presets/config.ini");
+		configFile.clear();
+		configFile << startY;
+		configFile.close();
 	}
 
 	void readLines(vector<string> lines) {

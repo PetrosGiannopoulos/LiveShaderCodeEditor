@@ -55,10 +55,10 @@ float noise( vec3 P )
     return dot( res0, blend2.zxzx * blend2.wwyy );
 }
 
-float fnoise(vec3 p, float time)
+float fnoise(vec3 p, float time_)
 {
     float f = 0.0;
-    p = p - vec3(0.0, 1.0, 0.0) * .5 * time;
+    p = p - vec3(0.0, 1.0, 0.0) * .5 * time_;
     p = p * 3.0;
     f += 0.50000 * noise(p); p = 2.0 * p;
 	f += 0.25000 * noise(p); p = 2.0 * p;

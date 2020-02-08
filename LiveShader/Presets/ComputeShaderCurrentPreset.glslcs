@@ -26,7 +26,7 @@ vec3 hueShift( vec3 color, float hueAdjust ){
 
     vec3    yIQ   = vec3 (YPrime, I, Q);
 
-    return vec3( dot (yIQ, kYIQToR), dot (yIQ, kYIQToG), dot (yIQ, kYIQToB) );
+    return vec3( dot (yIQ, kYIQToR), dot (yIQ, kYIQToG), dot (yIQ, kYIQToB) )-0.08;
 
 }
 
@@ -43,11 +43,32 @@ vec3 background(in vec3 p)
 } 
  
 float model( in vec3 p )
-{
-    p.y *= .7;
-    float fireR = 1.8;
-    float sphere_ = length(p-lightPos.xyz)-fireR;
-    float res = sphere_ + fnoise(p*1.5, time*3.)* .4;
+{
+   
+    
+    
+    p.x += cos(time); 
+    p.z += sin(time); 
+    
+    p.y *= .7;
+    //p -= lightPos.xyz;
+    float fireR = 0.8*p.y-1.;//+0.1*sin(time*0.7);
+    //fireR*= 1.2;
+    p -= lightPos.xyz;
+    //twist
+    float k = 10.0;
+    float c = cos(k*p.y);
+    float s = sin(k*p.y);
+    mat2  m = mat2(c,-s,s,c);
+    vec3  q = vec3(m*p.xz,p.y);
+    p = q;
+
+    float sphere_ = length(p)-fireR;
+    float res = sphere_ + fnoise(p*1.5, time*3.)* .4;
+    //displacement
+    //res += sin(20*p.x)*sin(20*p.x)*sin(20*p.x)*0.08;
+    
+    
     return res*.8;
 }
 
@@ -72,7 +93,7 @@ vec3 volume(in vec3 p, in vec3 rd, in vec3 ld, in vec3 sp, in vec3 bg)
     float td = 0.0;
     float dif = 0.0;
     float emit = 0.0;
-    float steps = 30.; // increase to smooth
+    float steps = 40.; // increase to smooth
     
     // march
     for(float i = 0.; i < steps; i++)
@@ -92,8 +113,8 @@ vec3 volume(in vec3 p, in vec3 rd, in vec3 ld, in vec3 sp, in vec3 bg)
         }
     }
     
-    trans = (1.-pow(td/steps, 4.5));
-    trans = smoothstep(0., 1., trans);
+    trans = (1.-pow(td/steps, 4.));
+    trans = smoothstep(0., 0.6, trans);
     float emitmod = (emit*trans)*.8+.2;
     
     // light
@@ -364,16 +385,15 @@ vec4 castRay(vec3 origin, vec3 direction, inout hitinfo info, inout bool shadowT
         
         if(volumeBool){ 
             //volumeColor += rayMarchedLighting(startPos,startDir, info, shadowsVar);
-            volumeBool = false;
-        
-            
+            volumeBool = false; 
  
         }
         else{
            //volumeColor += rayMarchedLighting(origin,direction,info,0.0);
            
-           
-
+            
+ 
+ 
            
            volumeBool = true; 
         } 
@@ -458,20 +478,27 @@ void main(void) {
      
     finalColor = mix(finalColor, refractionColor, 0.99);
     
+    
+    
+    
+    
+    
     finalColor = mix(finalColor, volumeColor, 0.5);
     finalColor.w = 1;
     if(volumeColor.xyz != vec3(0)){
         
-        //finalColor.w = 0;
+        finalColor.w = 0;
     }
      
     
     float dist = raymarch(origin, direction);
     vec3 ld = vec3(-1.,1.,0.); 
     if(dist>0.){ 
-        finalColor = vec4(volume(origin+direction*dist,direction,ld,lightPos.xyz,finalColor.xyz), finalColor.w);
-    }
-
+        finalColor = vec4(volume(origin+direction*dist,direction,ld,lightPos.xyz,finalColor.xyz), 1.0);
+    } 
+ 
+ 
+ 
     
     imageStore(framebuffer, pix, finalColor);
 }

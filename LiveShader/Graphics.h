@@ -950,7 +950,10 @@ public:
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 					displayMode = false;
 				}
-				else glfwSetWindowShouldClose(window, true);
+				else {
+					glfwSetWindowShouldClose(window, true);
+					codeEditor.writeScrollY();
+				}
 				break;
 			default:
 				break;
